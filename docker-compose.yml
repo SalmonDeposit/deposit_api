@@ -1,0 +1,33 @@
+version: '3.7'
+services:
+    redis:
+        image: redis:alpine
+        ports:
+            - "6379:6379"
+        networks:
+            - app-network
+
+    app:
+        build: .
+        image: 'deposit'
+        ports:
+            - '9000:80'
+        volumes:
+            - ./src:/var/www/html
+        networks:
+            - app-network
+
+    mysql:
+        image: mysql:5.7
+        restart: always
+        ports:
+            - '3306:3306'
+        environment:
+            MYSQL_DATABASE: 'deposit_db'
+            MYSQL_ALLOW_EMPTY_PASSWORD: 0
+            MYSQL_USER: 'username'
+            MYSQL_PASSWORD: 'password'
+
+networks:
+    app-network:
+        driver: bridge

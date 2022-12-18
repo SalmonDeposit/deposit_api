@@ -1,0 +1,25 @@
+FROM php:7.4-apache
+
+WORKDIR /var/www/html
+
+RUN apt-get update --fix-missing && \
+    apt-get install -y libpng-dev zlib1g-dev libxml2-dev libzip-dev zip curl unzip && \
+    apt-get clean
+
+RUN pecl install redis && docker-php-ext-enable redis
+
+COPY ./vhost.conf /etc/apache2/sites-available/000-default.conf
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+COPY src/* /var/www/html
+
+
+RUN chown -R www-data:www-data /var/www
+
+RUN php composer global update && \
+    php composer install --prefer-dist --no-dev --optimize-autoloader --no-interaction
+
+RUN a2enmod rewrite && \
+    service apache2 restart
+
