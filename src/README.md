@@ -1,8 +1,8 @@
-<p align="center"><img src="#" width="400"></p>
+![img](../src/public/img/logo_salmon.png)
 
 ## About Despos'It API
 
-### Development Installation 
+### Development Installation
 
 #### <ins>1. Requirements</ins>
 
@@ -33,3 +33,12 @@ Then, seed the database :
 ```
 **The api should now be ready to use.**
 ### Generating IDE Helpers
+Because the vendor folder isn't available due to Docker issues. You can still generate it **after installing and building the application**. However, keep in mind that it will not reflect the current vendor folder used by the application.
+
+Locally in your installation folder, type :
+```bash
+> composer install
+> php artisan ide-helper:generate
+> php artisan ide-helper:models
+```
+> 💡 For further information about the purpose of the use of this library, you can visit the [barryvdh repository's documentation](https://github.com/barryvdh/laravel-ide-helper).
