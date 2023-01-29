@@ -17,7 +17,8 @@ services:
             - mysql
         depends_on:
             - mysql
-        command: php artisan key:generate --ansi
+        env_file:
+            -   src/.env.local
 
     mysql:
         image: mysql:5.7
