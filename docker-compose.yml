@@ -4,18 +4,20 @@ services:
         image: redis:alpine
         ports:
             - "6379:6379"
-        networks:
-            - app-network
 
     app:
         build: .
         image: 'deposit'
         ports:
-            - '9000:80'
+            - '5000:80'
         volumes:
             - ./src:/var/www/html
-        networks:
-            - app-network
+            - /var/www/html/vendor
+        links:
+            - mysql
+        depends_on:
+            - mysql
+        command: php artisan key:generate --ansi
 
     mysql:
         image: mysql:5.7
@@ -27,7 +29,3 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: 0
             MYSQL_USER: 'username'
             MYSQL_PASSWORD: 'password'
-
-networks:
-    app-network:
-        driver: bridge
