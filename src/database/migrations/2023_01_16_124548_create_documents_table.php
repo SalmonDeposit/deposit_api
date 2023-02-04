@@ -14,6 +14,7 @@ class CreateDocumentsTable extends Migration
             $table->uuid('id')->primary();
             $table->uuid('user_id');
             $table->string('name', 150);
+            $table->string('type', 50);
             $table->text('storage_link');
             $table->integer('size');
             $table->timestamps();
