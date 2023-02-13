@@ -11,7 +11,7 @@ use App\Models\Document;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
 
 class DocumentController extends Controller
@@ -24,7 +24,9 @@ class DocumentController extends Controller
     public function index(): DocumentCollection
     {
         return new DocumentCollection(
-            Auth::user()->documents()->paginate()
+            Auth::user()->documents()
+                ->orderByDesc('created_at')
+                ->paginate()
         );
     }
 
@@ -37,6 +39,7 @@ class DocumentController extends Controller
     public function store(Request $request): DocumentResource
     {
         $document = Document::create($request->all());
+
         return new DocumentResource($document);
     }
 
@@ -52,7 +55,7 @@ class DocumentController extends Controller
             return new DocumentResource($document);
         }
 
-        return response()->json([], 404);
+        return Response::json([], 404);
     }
 
     /**
@@ -69,7 +72,7 @@ class DocumentController extends Controller
             return new DocumentResource($document);
         }
 
-        return response()->json([], 404);
+        return Response::json([], 404);
     }
 
     /**
@@ -83,14 +86,12 @@ class DocumentController extends Controller
         try {
             if ($document->belongsTo(Auth::user())) {
                 $result = (bool) Document::destroy($document->id);
-            } else {
-                $result = false;
             }
         } catch (Exception $e) {
             $result = $e->getMessage();
         } finally {
-            return response()->json([
-                'data' => $result
+            return Response::json([
+                'data' => $result ?? false
             ]);
         }
     }
