@@ -5,10 +5,11 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\V1\UpdateUserRequest;
 use App\Http\Resources\V1\UserCollection;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Http\JsonResponse;
 
 class UserController extends Controller
 {
@@ -17,7 +18,7 @@ class UserController extends Controller
      */
     public function index(): UserCollection
     {
-        return new UserCollection(User::all());
+        return new UserCollection(User::paginate());
     }
 
     /**
@@ -30,11 +31,30 @@ class UserController extends Controller
     }
 
     /**
+     * @param UpdateUserRequest $request
+     * @param User $user
+     * @return UserResource|JsonResponse
+     */
+    public function update(UpdateUserRequest $request, User $user)
+    {
+        if ($request->getMethod() === 'PUT') {
+            return response()->json([
+                'message' => 'Unsupported HTTP method. Try with patch.'
+            ], 405);
+        }
+
+        $user->update($request->all());
+
+        return new UserResource($user);
+    }
+
+    /**
      * @param User $user
      * @return int
      */
     public function delete(User $user): int
     {
-        return User::destroy($user);
+        // @TODO Do not destroy. Anonymize !
+        // return User::destroy($user);
     }
 }
