@@ -19,7 +19,9 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'email' => $this->email,
-            'emailVerifiedAt' => (new Carbon($this->email_verified_at))->format('Y-m-d H:i:s')
+            'simonCoinStock' => $this->simon_coin_stock,
+            'createdAt' => (new Carbon($this->created_at))->format('Y-m-d H:i:s'),
+            'updatedAt' => (new Carbon($this->updated_at))->format('Y-m-d H:i:s')
         ];
     }
 }
