@@ -15,7 +15,7 @@ class Document extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'user_id', 'name', 'storage_link', 'size'
+        'user_id', 'name', 'type', 'storage_link', 'size'
     ];
 
     public function user(): BelongsTo
