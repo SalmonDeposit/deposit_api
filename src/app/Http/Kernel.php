@@ -55,7 +55,6 @@ class Kernel extends HttpKernel
         'web' => [
             EncryptCookies::class,
             AddQueuedCookiesToResponse::class,
-            StartSession::class,
             // AuthenticateSession::class,
             ShareErrorsFromSession::class,
             VerifyCsrfToken::class,
@@ -65,6 +64,7 @@ class Kernel extends HttpKernel
         'api' => [
             EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
+            StartSession::class,
             SubstituteBindings::class,
         ],
     ];

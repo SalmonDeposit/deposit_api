@@ -17,11 +17,11 @@ class RegisteredUserController extends Controller
      * Handle an incoming registration request.
      *
      * @param Request $request
-     * @return User
+     * @return UserResource
      */
-    public function store(Request $request): User
+    public function store(Request $request): UserResource
     {
-        $request::validate([
+        $request->validate([
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
@@ -35,6 +35,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return $user;
+        return new UserResource($user);
     }
 }
