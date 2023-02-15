@@ -18,11 +18,16 @@ class Profile extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'firstname', 'lastname', 'email', 'phone_number', 'user_id'
+        'user_id', 'address_id', 'firstname', 'lastname', 'email', 'phone_number',
     ];
 
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function address(): BelongsTo
+    {
+        return $this->belongsTo(Address::class, 'address_id');
     }
 }
