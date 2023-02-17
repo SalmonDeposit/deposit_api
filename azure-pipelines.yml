@@ -10,7 +10,7 @@ variables:
   ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
     buildVersion: 'latest'
   ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
-    buildVersion: 'uat'
+    buildVersion: 'test'
 
 stages:
   - stage: Build
