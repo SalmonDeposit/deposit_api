@@ -1,0 +1,28 @@
+trigger:
+  - main
+  - develop
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  ImageName: 'deposit-api'
+  ${{ if eq( variables['Build.SourceBranchName'], 'master' ) }}:
+    buildVersion: 'latest'
+  ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
+    buildVersion: 'uat'
+
+stages:
+  - stage: Build
+    displayName: Build image
+    jobs:
+      - job: Build
+        displayName: Build and push Docker image
+        steps:
+          - task: Docker@2
+            inputs:
+              containerRegistry: 'Docker hub aranxa'
+              repository: 'codinaaranxa/deposit'
+              command: 'buildAndPush'
+              Dockerfile: '**/Dockerfile'
+              tags: $(buildVersion)
