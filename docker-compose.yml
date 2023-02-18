@@ -13,6 +13,8 @@ services:
         volumes:
             - ./src:/var/www/html
             - /var/www/html/vendor
+            - ./setup.sh:/var/www/setup.sh
+        entrypoint: /var/www/setup.sh
         links:
             - mysql
         depends_on:
