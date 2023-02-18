@@ -39,7 +39,7 @@ fi
 } >> "${ENV_FILE}";
 
 chown "${CODE_OWNER}":"${APP_GROUP}" "${ENV_FILE}"
-chmod 640 "${ENV_FILE}"
+chmod 777 "${ENV_FILE}"
 composer update
 php artisan key:generate
 php artisan migrate
