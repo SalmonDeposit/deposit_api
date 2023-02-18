@@ -16,7 +16,9 @@ COPY ./vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY src /var/www/html
-COPY setup.sh /var/www
+
+ADD setup.sh /var/www
+RUN chmod +x /var/www/setup.sh
 
 RUN composer install --ignore-platform-reqs --no-scripts
 
