@@ -22,7 +22,7 @@ stages:
           - task: Docker@2
             inputs:
               containerRegistry: 'Docker hub aranxa'
-              repository: 'codinaaranxa/deposit'
+              repository: 'codinaaranxa/deposit-api'
               command: 'buildAndPush'
               Dockerfile: '**/Dockerfile'
               tags: $(buildVersion)
