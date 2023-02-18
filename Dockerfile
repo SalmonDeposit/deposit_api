@@ -16,7 +16,7 @@ COPY ./vhost.conf /etc/apache2/sites-available/000-default.conf
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 COPY src /var/www/html
-ADD setup.sh /var/html
+COPY setup.sh /var/www
 
 RUN composer install --ignore-platform-reqs --no-scripts
 
@@ -24,5 +24,3 @@ RUN a2enmod rewrite && \
     service apache2 restart
 
 ENTRYPOINT /var/www/setup.sh
-
-
