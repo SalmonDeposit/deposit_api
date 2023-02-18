@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\V1\DocumentCollection;
 use App\Http\Resources\V1\DocumentResource;
 use App\Models\Document;
+use App\Filters\V1\DocumentQueryFilter;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,15 +20,21 @@ class DocumentController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param Request $request
      * @return DocumentCollection
      */
-    public function index(): DocumentCollection
+    public function index(Request $request): DocumentCollection
     {
-        return new DocumentCollection(
-            Auth::user()->documents()
-                ->orderByDesc('created_at')
-                ->paginate()
-        );
+        $filter = new DocumentQueryFilter();
+        $filterItems = $filter->transform($request);
+
+        $documents = Auth::user()->documents();
+
+        if (!empty($filterItems)) {
+            $documents->where($filterItems);
+        }
+
+        return new DocumentCollection($documents->orderByDesc('created_at')->paginate()->appends($request->query()));
     }
 
     /**
