@@ -1,27 +1,27 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Models;
 
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class Document extends Model
+class Address extends Model
 {
     use HasFactory, Uuid;
 
     protected $keyType = 'string';
     public $incrementing = false;
 
+    protected $table = 'addresses';
+
     protected $fillable = [
-        'user_id', 'name', 'type', 'storage_link', 'size'
+        'line', 'postal_code', 'city', 'country', 'is_default'
     ];
 
-    public function user(): BelongsTo
+    public function profiles(): HasMany
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(Profile::class);
     }
 }

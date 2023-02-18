@@ -10,16 +10,16 @@ class CreateProfilesTable extends Migration
 {
     public function up()
     {
-        Schema::create('profiles', function (Blueprint $table) {
+        Schema::create('profiles', function (Blueprint $table) {            $table->charset = 'utf8';
             $table->uuid('id')->primary();
-            $table->uuid('user_id');
             $table->string('firstname', 70);
             $table->string('lastname', 70);
             $table->string('email', 150);
             $table->string('phone_number');
             $table->timestamps();
 
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreignUuid('user_id')->nullable()->constrained();
+            $table->foreignUuid('address_id')->nullable()->constrained();
         });
     }
 

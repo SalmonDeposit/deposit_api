@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Document;
+use App\Models\Profile;
+use App\Observers\DocumentObserver;
+use App\Observers\ProfileObserver;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -27,6 +31,7 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        Document::observe(DocumentObserver::class);
+        Profile::observe(ProfileObserver::class);
     }
 }

@@ -1,14 +1,12 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Http\Resources\V1;
 
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class ProfileResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,10 +18,10 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'firstname' => $this->firstname,
+            'lastname' => $this->lastname,
             'email' => $this->email,
-            'documents' => new DocumentCollection($this->documents),
-            'profiles' => new ProfileCollection($this->profiles),
-            'simonCoinStock' => $this->simon_coin_stock,
+            'phoneNumber' => $this->phone_number,
             'createdAt' => (new Carbon($this->created_at))->format('Y-m-d H:i:s'),
             'updatedAt' => (new Carbon($this->updated_at))->format('Y-m-d H:i:s')
         ];

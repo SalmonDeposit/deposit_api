@@ -8,7 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class UserResource extends JsonResource
+class DocumentResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -20,10 +20,10 @@ class UserResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'email' => $this->email,
-            'documents' => new DocumentCollection($this->documents),
-            'profiles' => new ProfileCollection($this->profiles),
-            'simonCoinStock' => $this->simon_coin_stock,
+            'name' => $this->name,
+            'type' => $this->type,
+            'storageLink' => $this->storage_link,
+            'size' => (int) $this->size,
             'createdAt' => (new Carbon($this->created_at))->format('Y-m-d H:i:s'),
             'updatedAt' => (new Carbon($this->updated_at))->format('Y-m-d H:i:s')
         ];

@@ -10,6 +10,7 @@ use App\Http\Resources\V1\UserCollection;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Response;
 
 class UserController extends Controller
 {
@@ -38,7 +39,7 @@ class UserController extends Controller
     public function update(UpdateUserRequest $request, User $user)
     {
         if ($request->getMethod() === 'PUT') {
-            return response()->json([
+            return Response::json([
                 'message' => 'Unsupported HTTP method. Try with patch.'
             ], 405);
         }
@@ -50,9 +51,8 @@ class UserController extends Controller
 
     /**
      * @param User $user
-     * @return int
      */
-    public function delete(User $user): int
+    public function delete(User $user)
     {
         // @TODO Do not destroy. Anonymize !
         // return User::destroy($user);
