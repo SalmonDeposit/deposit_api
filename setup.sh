@@ -41,6 +41,8 @@ fi
 chown "${CODE_OWNER}":"${APP_GROUP}" "${ENV_FILE}"
 chmod 640 "${ENV_FILE}"
 php artisan key:generate
+php artisan migrate
 chmod 777 -R storage
 chmod 777 -R bootstrap
+
 apache2-foreground
