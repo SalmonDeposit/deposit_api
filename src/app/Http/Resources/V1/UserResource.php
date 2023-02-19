@@ -21,8 +21,8 @@ class UserResource extends JsonResource
         return [
             'id' => $this->id,
             'email' => $this->email,
-            'documents' => new DocumentCollection($this->documents),
-            'profiles' => new ProfileCollection($this->profiles),
+            'documents' => DocumentResource::collection($this->whenLoaded('documents')),
+            'profiles' => ProfileResource::collection($this->whenLoaded('profiles')),
             'simonCoinStock' => $this->simon_coin_stock,
             'createdAt' => (new Carbon($this->created_at))->format('Y-m-d H:i:s'),
             'updatedAt' => (new Carbon($this->updated_at))->format('Y-m-d H:i:s')

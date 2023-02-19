@@ -32,11 +32,11 @@ class User extends Authenticatable
 
     public function profiles(): HasMany
     {
-        return $this->hasMany(Profile::class);
+        return $this->hasMany(Profile::class, 'user_id');
     }
 
     public function documents(): HasMany
     {
-        return $this->hasMany(Document::class);
+        return $this->hasMany(Document::class, 'user_id');
     }
 }
