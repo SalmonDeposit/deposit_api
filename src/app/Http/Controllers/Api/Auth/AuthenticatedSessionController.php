@@ -24,12 +24,36 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        $authToken = Auth::user()->createToken('web-auth');
 
         return response()->json([
-            'message' => 'Successfully authenticated',
+            'message' => 'Successfully authenticated.',
             'data' => [
+                'token' => $authToken->plainTextToken,
+                'expired_at' => $authToken->accessToken->expired_at,
                 'user' => new UserResource(Auth::user())
+            ]
+        ]);
+    }
+
+    /**
+     * Refresh current user's authentication token
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function refresh(Request $request): JsonResponse
+    {
+        $user = Auth::user();
+        $user->tokens()->delete();
+        $refreshedToken = $user->createToken('web-auth');
+
+        return response()->json([
+            'message' => 'Authentication successfully refreshed.',
+            'data' => [
+                'token' => $refreshedToken->plainTextToken,
+                'expired_at' => $refreshedToken->accessToken->expired_at,
+                'user' => new UserResource($user->refresh())
             ]
         ]);
     }
@@ -38,16 +62,18 @@ class AuthenticatedSessionController extends Controller
      * Destroy an authenticated session.
      *
      * @param Request $request
-     * @return Response
+     * @return JsonResponse
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request): JsonResponse
     {
-        Auth::guard('web')->logout();
+        Auth::user()
+            ->tokens()
+            ->where('name', 'web-auth')
+            ->delete();
 
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return response()->noContent();
+        return response()->json([
+            'message' => 'Logged out successfully.',
+            'data' => []
+        ]);
     }
 }
