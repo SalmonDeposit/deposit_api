@@ -27,7 +27,7 @@ class AuthenticatedSessionController extends Controller
         $authToken = Auth::user()->createToken('web-auth');
 
         return response()->json([
-            'message' => 'Successfully authenticated',
+            'message' => 'Successfully authenticated.',
             'data' => [
                 'token' => $authToken->plainTextToken,
                 'expired_at' => $authToken->accessToken->expired_at,
@@ -49,7 +49,7 @@ class AuthenticatedSessionController extends Controller
         $refreshedToken = $user->createToken('web-auth');
 
         return response()->json([
-            'message' => 'Authentication successfully refreshed',
+            'message' => 'Authentication successfully refreshed.',
             'data' => [
                 'token' => $refreshedToken->plainTextToken,
                 'expired_at' => $refreshedToken->accessToken->expired_at,
@@ -62,10 +62,18 @@ class AuthenticatedSessionController extends Controller
      * Destroy an authenticated session.
      *
      * @param Request $request
-     * @return Response
+     * @return JsonResponse
      */
-    public function destroy(Request $request)
+    public function destroy(Request $request): JsonResponse
     {
-        return response()->json([]);
+        Auth::user()
+            ->tokens()
+            ->where('name', 'web-auth')
+            ->delete();
+
+        return response()->json([
+            'message' => 'Logged out successfully.',
+            'data' => []
+        ]);
     }
 }
