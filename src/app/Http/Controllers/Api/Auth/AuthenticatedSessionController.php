@@ -24,11 +24,12 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
-        $request->session()->regenerate();
+        $authToken = Auth::user()->createToken('auth');
 
         return response()->json([
             'message' => 'Successfully authenticated',
             'data' => [
+                'token' => $authToken->plainTextToken,
                 'user' => new UserResource(Auth::user())
             ]
         ]);
@@ -40,14 +41,8 @@ class AuthenticatedSessionController extends Controller
      * @param Request $request
      * @return Response
      */
-    public function destroy(Request $request): Response
+    public function destroy(Request $request)
     {
-        Auth::guard('web')->logout();
-
-        $request->session()->invalidate();
-
-        $request->session()->regenerateToken();
-
-        return response()->noContent();
+        return response()->json([]);
     }
 }
