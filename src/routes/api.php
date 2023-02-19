@@ -25,8 +25,9 @@ Route::group(['middleware' => 'guest'], function() {
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
 
-Route::group(['middleware' => 'auth'], function() {
+Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
+    Route::post('refresh', [AuthenticatedSessionController::class, 'refresh']);
 });
 
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
