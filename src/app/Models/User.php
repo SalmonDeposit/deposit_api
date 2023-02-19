@@ -53,4 +53,16 @@ class User extends Authenticatable
 
         return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
     }
+
+    public function createToken(string $name, array $abilities = ['*']): NewAccessToken
+    {
+        $token = $this->tokens()->create([
+            'name' => $name,
+            'token' => hash('sha256', $plainTextToken = Str::random(40)),
+            'abilities' => $abilities,
+            'expired_at' => now()->addMinutes(config('sanctum.expiration'))
+        ]);
+
+        return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
+    }
 }
