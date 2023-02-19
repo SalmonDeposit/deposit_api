@@ -22,7 +22,7 @@ class RequestFieldHandle
         $fields = $request->all();
 
         foreach ($fields as $field => $value) {
-            $replaced[Str::snake($field)] = $value;
+            $replaced[!str_contains($field, 'include') ? Str::snake($field) : $field] = $value;
         }
 
         $request->replace($replaced ?? []);

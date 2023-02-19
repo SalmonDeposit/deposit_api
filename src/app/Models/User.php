@@ -34,12 +34,24 @@ class User extends Authenticatable
 
     public function profiles(): HasMany
     {
-        return $this->hasMany(Profile::class);
+        return $this->hasMany(Profile::class, 'user_id');
     }
 
     public function documents(): HasMany
     {
-        return $this->hasMany(Document::class);
+        return $this->hasMany(Document::class, 'user_id');
+    }
+
+    public function createToken(string $name, array $abilities = ['*']): NewAccessToken
+    {
+        $token = $this->tokens()->create([
+            'name' => $name,
+            'token' => hash('sha256', $plainTextToken = Str::random(40)),
+            'abilities' => $abilities,
+            'expired_at' => now()->addMinutes(config('sanctum.expiration'))
+        ]);
+
+        return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
     }
 
     public function createToken(string $name, array $abilities = ['*']): NewAccessToken
