@@ -27,12 +27,12 @@ class AuthenticatedSessionController extends Controller
         $authToken = Auth::user()->createToken('web-auth');
 
         return response()->json([
+            'errors' => null,
+            'hasError' => false,
             'message' => 'Successfully authenticated.',
-            'data' => [
-                'token' => $authToken->plainTextToken,
-                'expired_at' => $authToken->accessToken->expired_at,
-                'user' => new UserResource(Auth::user())
-            ]
+            'token' => $authToken->plainTextToken,
+            'expired_at' => $authToken->accessToken->expired_at,
+            'object' => new UserResource(Auth::user())
         ]);
     }
 
@@ -49,12 +49,12 @@ class AuthenticatedSessionController extends Controller
         $refreshedToken = $user->createToken('web-auth');
 
         return response()->json([
+            'errors' => null,
+            'hasError' => false,
             'message' => 'Authentication successfully refreshed.',
-            'data' => [
-                'token' => $refreshedToken->plainTextToken,
-                'expired_at' => $refreshedToken->accessToken->expired_at,
-                'user' => new UserResource($user->refresh())
-            ]
+            'token' => $refreshedToken->plainTextToken,
+            'expired_at' => $refreshedToken->accessToken->expired_at,
+            'object' => new UserResource($user->refresh())
         ]);
     }
 
@@ -72,8 +72,10 @@ class AuthenticatedSessionController extends Controller
             ->delete();
 
         return response()->json([
+            'errors' => null,
+            'hasError' => false,
             'message' => 'Logged out successfully.',
-            'data' => []
+            'object' => null
         ]);
     }
 }
