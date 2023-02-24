@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Validation\ValidationException;
 
 class Handler extends ExceptionHandler
 {
@@ -24,6 +26,21 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
+
+    /**
+     * @param $request
+     * @param ValidationException $exception
+     * @return JsonResponse
+     */
+    protected function invalidJson($request, ValidationException $exception): JsonResponse
+    {
+        return response()->json([
+            'errors' => $exception->errors(),
+            'hasError' => true,
+            'message' => 'The given data is invalid',
+            'object' => null
+        ], $exception->status);
+    }
 
     /**
      * Register the exception handling callbacks for the application.

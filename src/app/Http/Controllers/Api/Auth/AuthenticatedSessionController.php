@@ -2,16 +2,15 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Resources\V1\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
-class AuthenticatedSessionController extends Controller
+class AuthenticatedSessionController extends ApiController
 {
     /**
      * Handle an incoming authentication request.
@@ -26,14 +25,14 @@ class AuthenticatedSessionController extends Controller
 
         $authToken = Auth::user()->createToken('web-auth');
 
-        return response()->json([
-            'errors' => null,
-            'hasError' => false,
-            'message' => 'Successfully authenticated.',
-            'token' => $authToken->plainTextToken,
-            'expired_at' => $authToken->accessToken->expired_at,
-            'object' => new UserResource(Auth::user())
-        ]);
+        return $this->successResponse(
+            new UserResource(Auth::user()),
+            __('Successfully logged in.'),
+            [
+                'token' => $authToken->plainTextToken,
+                'expired_at' => $authToken->accessToken->expired_at
+            ]
+        );
     }
 
     /**
@@ -48,14 +47,14 @@ class AuthenticatedSessionController extends Controller
         $user->tokens()->delete();
         $refreshedToken = $user->createToken('web-auth');
 
-        return response()->json([
-            'errors' => null,
-            'hasError' => false,
-            'message' => 'Authentication successfully refreshed.',
-            'token' => $refreshedToken->plainTextToken,
-            'expired_at' => $refreshedToken->accessToken->expired_at,
-            'object' => new UserResource($user->refresh())
-        ]);
+        return $this->successResponse(
+            new UserResource(Auth::user()),
+            __('Token successfully refreshed.'),
+            [
+                'token' => $refreshedToken->plainTextToken,
+                'expired_at' => $refreshedToken->accessToken->expired_at
+            ]
+        );
     }
 
     /**
@@ -71,11 +70,9 @@ class AuthenticatedSessionController extends Controller
             ->where('name', 'web-auth')
             ->delete();
 
-        return response()->json([
-            'errors' => null,
-            'hasError' => false,
-            'message' => 'Logged out successfully.',
-            'object' => null
-        ]);
+        return $this->successResponse(
+            null,
+            __('Logged out successfully.')
+        );
     }
 }

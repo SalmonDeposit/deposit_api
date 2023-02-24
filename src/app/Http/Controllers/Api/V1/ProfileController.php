@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
 use App\Http\Resources\V1\ProfileCollection;
 use App\Http\Resources\V1\ProfileResource;
 use App\Models\Profile;
@@ -12,48 +12,66 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
 
-class ProfileController extends Controller
+class ProfileController extends ApiController
 {
     /**
      * Display a listing of the resource.
      *
-     * @return ProfileCollection
+     * @return JsonResponse
      */
-    public function index(): ProfileCollection
+    public function index(): JsonResponse
     {
-        return new ProfileCollection(
-            Auth::user()->profiles()
-                ->orderByDesc('created_at')
-                ->paginate()
-        );
+        try {
+            return $this->successResponse(
+                new ProfileCollection(
+                    Auth::user()->profiles()
+                        ->orderByDesc('created_at')
+                        ->paginate()
+                )
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @return ProfileResource
+     * @return JsonResponse
      */
-    public function store(Request $request): ProfileResource
+    public function store(Request $request): JsonResponse
     {
-        $profile = Profile::create($request->all());
+        try {
+            $profile = Profile::create($request->all());
 
-        return new ProfileResource($profile);
+            return $this->successResponse(
+                new ProfileResource($profile),
+                __('Profile successfully created.'),
+                [],
+                201
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
      * Display the specified resource.
      *
      * @param Profile $profile
-     * @return ProfileResource|JsonResponse
+     * @return JsonResponse
      */
-    public function show(Profile $profile)
+    public function show(Profile $profile): JsonResponse
     {
-        if ($profile->belongsTo(Auth::user())) {
-            return new ProfileResource($profile);
-        }
+        try {
+            if (!$profile->belongsTo(Auth::user()))
+                throw new Exception(__('Resource not found.'));
 
-        return Response::json([], 404);
+            return $this->successResponse(new ProfileResource($profile));
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -61,16 +79,24 @@ class ProfileController extends Controller
      *
      * @param Request $request
      * @param Profile $profile
-     * @return ProfileResource|JsonResponse
+     * @return JsonResponse
      */
-    public function update(Request $request, Profile $profile)
+    public function update(Request $request, Profile $profile): JsonResponse
     {
-        if ($profile->belongsTo(Auth::user())) {
-            $profile->update($request->all());
-            return new ProfileResource($profile);
-        }
+        try {
+            if (!$profile->belongsTo(Auth::user()))
+                throw new Exception(__('Resource not found.'));
 
-        return Response::json([], 404);
+            $profile->update($request->all());
+
+            return $this->successResponse(
+                new ProfileResource($profile),
+                __('Profile successfully updated.'),
+                []
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -82,15 +108,17 @@ class ProfileController extends Controller
     public function destroy(Profile $profile): JsonResponse
     {
         try {
-            if ($profile->belongsTo(Auth::user())) {
-                $result = (bool) Profile::destroy($profile->id);
-            }
+            if (!$profile->belongsTo(Auth::user()))
+                throw new Exception(__('Resource not found.'));
+
+            Profile::destroy($profile->id);
+
+            return $this->successResponse(
+                null,
+                __('Profile deleted.')
+            );
         } catch (Exception $e) {
-            $result = $e->getMessage();
-        } finally {
-            return Response::json([
-                'data' => $result ?? false
-            ]);
+            return $this->errorResponse($e->getMessage());
         }
     }
 }
