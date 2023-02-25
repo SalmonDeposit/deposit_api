@@ -9,6 +9,7 @@ use App\Http\Resources\V1\DocumentCollection;
 use App\Http\Resources\V1\DocumentResource;
 use App\Models\Document;
 use App\Filters\V1\DocumentQueryFilter;
+use App\Services\AzureStorage;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -60,40 +61,7 @@ class DocumentController extends ApiController
             if (!$request->hasFile('document'))
                 throw new Exception(__('No file named "document" found in the request.'));
 
-            $fileName  = (string) $request->document->getClientOriginalName();
-            $mimeType  = (string) $request->document->getClientMimeType();
-            $fileSize  = (int) $request->document->getMaxFilesize();
-
-            $targetPath = Auth::id() . '/' . $fileName;
-
-            $connectionString = (string) env('AZURE_STORAGE_CONNECTION_STRING');
-            $container = (string) env('AZURE_STORAGE_CONTAINER');
-
-            // Connect to Azure SDK
-            $client = BlobRestProxy::createBlobService($connectionString);
-            // Setup options
-            $options = new CreateBlockBlobOptions();
-            $options->setContentType($mimeType);
-
-            // Upload file to Azure
-            $result = $client->createBlockBlob(
-                $container,
-                $targetPath,
-                $request->document->getContent(), $options
-            );
-
-            if (!$result->getRequestServerEncrypted())
-                throw new Exception(__('Unable to upload file to Azure Storage'));
-
-            // Retrieve blob URL
-            $url = $client->getBlobUrl($container, $targetPath);
-
-            $document = Document::create([
-                'name' => $fileName,
-                'type' => $mimeType,
-                'storage_link' => $url,
-                'size' => $fileSize
-            ]);
+            $document = AzureStorage::upload($request, 'document');
 
             return $this->successResponse(
                 new DocumentResource($document),
