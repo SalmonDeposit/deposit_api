@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\ApiResponser;
+use App\Traits\ApiResponser;
 
 class ApiController extends Controller
 {

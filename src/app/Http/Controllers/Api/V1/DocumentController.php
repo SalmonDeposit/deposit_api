@@ -12,8 +12,9 @@ use App\Filters\V1\DocumentQueryFilter;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 
 class DocumentController extends ApiController
 {
@@ -56,7 +57,43 @@ class DocumentController extends ApiController
     public function store(Request $request): JsonResponse
     {
         try {
-            $document = Document::create($request->all());
+            if (!$request->hasFile('document'))
+                throw new Exception(__('No file named "document" found in the request.'));
+
+            $fileName  = (string) $request->document->getClientOriginalName();
+            $mimeType  = (string) $request->document->getClientMimeType();
+            $fileSize  = (int) $request->document->getMaxFilesize();
+
+            $targetPath = Auth::id() . '/' . $fileName;
+
+            $connectionString = (string) env('AZURE_STORAGE_CONNECTION_STRING');
+            $container = (string) env('AZURE_STORAGE_CONTAINER');
+
+            // Connect to Azure SDK
+            $client = BlobRestProxy::createBlobService($connectionString);
+            // Setup options
+            $options = new CreateBlockBlobOptions();
+            $options->setContentType($mimeType);
+
+            // Upload file to Azure
+            $result = $client->createBlockBlob(
+                $container,
+                $targetPath,
+                $request->document->getContent(), $options
+            );
+
+            if (!$result->getRequestServerEncrypted())
+                throw new Exception(__('Unable to upload file to Azure Storage'));
+
+            // Retrieve blob URL
+            $url = $client->getBlobUrl($container, $targetPath);
+
+            $document = Document::create([
+                'name' => $fileName,
+                'type' => $mimeType,
+                'storage_link' => $url,
+                'size' => $fileSize
+            ]);
 
             return $this->successResponse(
                 new DocumentResource($document),
