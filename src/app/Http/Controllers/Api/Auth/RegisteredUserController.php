@@ -2,39 +2,43 @@
 
 namespace App\Http\Controllers\Api\Auth;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
+use App\Http\Requests\Auth\RegisterRequest;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
+use Exception;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules;
 
-class RegisteredUserController extends Controller
+class RegisteredUserController extends ApiController
 {
     /**
      * Handle an incoming registration request.
      *
-     * @param Request $request
-     * @return UserResource
+     * @param RegisterRequest $request
+     * @return JsonResponse
      */
-    public function store(Request $request): UserResource
+    public function store(RegisterRequest $request): JsonResponse
     {
-        $request->validate([
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        try {
+            $user = User::create([
+                'email' => $request->email,
+                'password' => Hash::make($request->password)
+            ]);
 
-        $user = User::create([
-            'email' => $request->email,
-            'password' => Hash::make($request->password)
-        ]);
+            $authToken = $user->createToken('web-auth');
 
-        event(new Registered($user));
-
-        Auth::login($user);
-
-        return new UserResource($user);
+            return $this->successResponse(
+                new UserResource($user),
+                __('Your registration is successful.'),
+                [
+                    'token' => $authToken->plainTextToken,
+                    'expired_at' => $authToken->accessToken->expired_at
+                ]
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 }

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
 use App\Http\Resources\V1\DocumentCollection;
 use App\Http\Resources\V1\DocumentResource;
 use App\Models\Document;
@@ -15,54 +15,76 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
 
-class DocumentController extends Controller
+class DocumentController extends ApiController
 {
     /**
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @return DocumentCollection
+     * @return JsonResponse
      */
-    public function index(Request $request): DocumentCollection
+    public function index(Request $request): JsonResponse
     {
-        $filter = new DocumentQueryFilter();
-        $filterItems = $filter->transform($request);
+        try {
+            $filter = new DocumentQueryFilter();
+            $filterItems = $filter->transform($request);
 
-        $documents = Auth::user()->documents();
+            $documents = Auth::user()->documents();
 
-        if (!empty($filterItems)) {
-            $documents->where($filterItems);
+            if (!empty($filterItems)) {
+                $documents->where($filterItems);
+            }
+
+            return $this->successResponse(
+                new DocumentCollection(
+                    $documents->orderByDesc('created_at')
+                        ->paginate()
+                        ->appends($request->query())
+                )
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
         }
-
-        return new DocumentCollection($documents->orderByDesc('created_at')->paginate()->appends($request->query()));
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param Request $request
-     * @return DocumentResource
+     * @return JsonResponse
      */
-    public function store(Request $request): DocumentResource
+    public function store(Request $request): JsonResponse
     {
-        $document = Document::create($request->all());
+        try {
+            $document = Document::create($request->all());
 
-        return new DocumentResource($document);
+            return $this->successResponse(
+                new DocumentResource($document),
+                __('Document successfully stored.'),
+                [],
+                201
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
      * Display the specified resource.
      *
      * @param Document $document
-     * @return DocumentResource|JsonResponse
+     * @return JsonResponse
      */
-    public function show(Document $document)
+    public function show(Document $document): JsonResponse
     {
-        if ($document->belongsTo(Auth::user())) {
-            return new DocumentResource($document);
-        }
+        try {
+            if (!$document->belongsTo(Auth::user()))
+                throw new Exception(__('Resource not found.'));
 
-        return Response::json([], 404);
+            return $this->successResponse(new DocumentResource($document));
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -70,16 +92,24 @@ class DocumentController extends Controller
      *
      * @param Request $request
      * @param Document $document
-     * @return DocumentResource|JsonResponse
+     * @return JsonResponse
      */
-    public function update(Request $request, Document $document)
+    public function update(Request $request, Document $document): JsonResponse
     {
-        if ($document->belongsTo(Auth::user())) {
-            $document->update($request->all());
-            return new DocumentResource($document);
-        }
+        try {
+            if (!$document->belongsTo(Auth::user()))
+                throw new Exception(__('Resource not found.'));
 
-        return Response::json([], 404);
+            $document->update($request->all());
+
+            return $this->successResponse(
+                new DocumentResource($document),
+                __('Document successfully updated.'),
+                []
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
     }
 
     /**
@@ -91,15 +121,17 @@ class DocumentController extends Controller
     public function destroy(Document $document): JsonResponse
     {
         try {
-            if ($document->belongsTo(Auth::user())) {
-                $result = (bool) Document::destroy($document->id);
-            }
+            if (!$document->belongsTo(Auth::user()))
+                throw new Exception(__('Resource not found.'));
+
+            Document::destroy($document->id);
+
+            return $this->successResponse(
+                null,
+                __('Document deleted.')
+            );
         } catch (Exception $e) {
-            $result = $e->getMessage();
-        } finally {
-            return Response::json([
-                'data' => $result ?? false
-            ]);
+            return $this->errorResponse($e->getMessage());
         }
     }
 }

@@ -5,81 +5,89 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Filters\V1\UserQueryFilter;
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiController;
 use App\Http\Requests\V1\UpdateUserRequest;
 use App\Http\Resources\V1\UserCollection;
 use App\Http\Resources\V1\UserResource;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 
-class UserController extends Controller
+class UserController extends ApiController
 {
     /**
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @return UserCollection
+     * @return JsonResponse
      */
-    public function index(Request $request): UserCollection
+    public function index(Request $request): JsonResponse
     {
-        $filter = new UserQueryFilter();
-        $filterItems = $filter->transform($request);
+        try {
+            $filter = new UserQueryFilter();
+            $filterItems = $filter->transform($request);
 
-        $includeDocuments = $request->query('includeDocuments');
-        $includeProfiles = $request->query('includeProfiles');
+            $includeDocuments = $request->query('includeDocuments');
+            $includeProfiles = $request->query('includeProfiles');
 
-        $users = User::where($filterItems ?? []);
+            $users = User::where($filterItems ?? []);
 
-        if (!empty($includeDocuments)) {
-            $users->with('documents');
+            if (!empty($includeDocuments)) {
+                $users->with('documents');
+            }
+
+            if (!empty($includeProfiles)) {
+                $users->with('profiles');
+            }
+
+            return $this->successResponse(
+                new UserCollection($users->paginate()->appends($request->query()))
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
         }
-
-        if (!empty($includeProfiles)) {
-            $users->with('profiles');
-        }
-
-        return new UserCollection($users->paginate()->appends($request->query()));
     }
 
     /**
      * @param Request $request
      * @param User $user
-     * @return UserResource
+     * @return JsonResponse
      */
-    public function show(Request $request, User $user): UserResource
+    public function show(Request $request, User $user): JsonResponse
     {
-        $includeDocuments = $request->query('includeDocuments');
-        $includeProfiles = $request->query('includeProfiles');
+        try {
+            $includeDocuments = $request->query('includeDocuments');
+            $includeProfiles = $request->query('includeProfiles');
 
-        if (!empty($includeDocuments)) {
-            $user->loadMissing('documents');
+            if (!empty($includeDocuments)) {
+                $user->loadMissing('documents');
+            }
+
+            if (!empty($includeProfiles)) {
+                $user->loadMissing('profiles');
+            }
+
+            return $this->successResponse(new UserResource($user));
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
         }
-
-        if (!empty($includeProfiles)) {
-            $user->loadMissing('profiles');
-        }
-
-        return new UserResource($user);
     }
 
     /**
      * @param UpdateUserRequest $request
      * @param User $user
-     * @return UserResource|JsonResponse
+     * @return JsonResponse
      */
-    public function update(UpdateUserRequest $request, User $user)
+    public function update(UpdateUserRequest $request, User $user): JsonResponse
     {
-        if ($request->getMethod() === 'PUT') {
-            return Response::json([
-                'message' => 'Unsupported HTTP method. Try with patch.'
-            ], 405);
+        try {
+            $user->update($request->all());
+
+            return $this->successResponse(new UserResource($user->refresh()));
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
         }
-
-        $user->update($request->all());
-
-        return new UserResource($user);
     }
 
     /**
