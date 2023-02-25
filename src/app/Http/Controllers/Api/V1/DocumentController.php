@@ -9,11 +9,13 @@ use App\Http\Resources\V1\DocumentCollection;
 use App\Http\Resources\V1\DocumentResource;
 use App\Models\Document;
 use App\Filters\V1\DocumentQueryFilter;
+use App\Services\AzureStorage;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Auth;
+use MicrosoftAzure\Storage\Blob\BlobRestProxy;
+use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 
 class DocumentController extends ApiController
 {
@@ -56,7 +58,10 @@ class DocumentController extends ApiController
     public function store(Request $request): JsonResponse
     {
         try {
-            $document = Document::create($request->all());
+            if (!$request->hasFile('document'))
+                throw new Exception(__('No file named "document" found in the request.'));
+
+            $document = AzureStorage::upload($request, 'document');
 
             return $this->successResponse(
                 new DocumentResource($document),

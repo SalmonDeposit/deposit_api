@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiAuthenticate;
+use App\Http\Middleware\AzureStorageMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
 use App\Http\Middleware\RedirectIfAuthenticated;
@@ -80,6 +81,7 @@ class Kernel extends HttpKernel
     protected $routeMiddleware = [
         // 'auth' => Authenticate::class,
         'auth' => ApiAuthenticate::class,
+        'azure-storage-auth' => AzureStorageMiddleware::class,
         'auth.basic' => AuthenticateWithBasicAuth::class,
         'cache.headers' => SetCacheHeaders::class,
         'can' => Authorize::class,

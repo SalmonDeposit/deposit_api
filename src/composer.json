@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^7.3",
+        "ext-json": "*",
         "fideloper/proxy": "^4.2",
         "fruitcake/laravel-cors": "^2.0",
         "guzzlehttp/guzzle": "^7.0.1",
@@ -16,9 +17,9 @@
         "laravel/framework": "^8.0",
         "laravel/sanctum": "^2.15",
         "laravel/tinker": "^2.0",
+        "microsoft/azure-storage-blob": "^1.5",
         "predis/predis": "^2.0",
-        "ramsey/uuid-doctrine": "^2.0",
-        "ext-json": "*"
+        "ramsey/uuid-doctrine": "^2.0"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^2.13",
