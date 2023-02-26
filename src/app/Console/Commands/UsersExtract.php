@@ -135,6 +135,12 @@ class UsersExtract extends Command
 //                throw new Exception(
 //                    'Unable to send CSV data to Power BI. Response code : ' . $response->getStatusCode()
 //                );
+            $job->update([
+                'running' => 0,
+                'status' => 'OK',
+                'message' => '',
+                'finished_at' => Carbon::now()
+            ]);
 
             $job->update([
                 'running' => 0,
