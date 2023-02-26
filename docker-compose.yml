@@ -14,6 +14,7 @@ services:
             - ./src:/var/www/html
             - /var/www/html/vendor
             - ./setup.sh:/var/www/setup.sh
+            # - ./xdebug:/var/logs/xdebug
         entrypoint: /var/www/setup.sh
         links:
             - mysql

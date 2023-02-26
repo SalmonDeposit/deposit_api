@@ -61,7 +61,7 @@ class DocumentController extends ApiController
             if (!$request->hasFile('document'))
                 throw new Exception(__('No file named "document" found in the request.'));
 
-            $document = AzureStorage::upload($request, 'document');
+            $document = AzureStorage::uploadRequestedFile($request, 'document');
 
             return $this->successResponse(
                 new DocumentResource($document),
