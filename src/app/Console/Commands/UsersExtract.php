@@ -1,9 +1,13 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Console\Commands;
 
+use App\Models\Job;
 use App\Models\User;
 use App\Services\AzureStorage;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -55,6 +59,13 @@ class UsersExtract extends Command
     public function handle(): int
     {
         try {
+            $job = Job::where('class', '=', self::class)->first();
+
+            if ($job === null) {
+                throw new Exception('Cannot find any job related to ' . self::class . ' class.');
+            }
+
+            $job->update(['running' => 1, 'launched_at' => Carbon::now()]);
             $this->log('Start ---');
 
             $startTime = microtime(true);
@@ -124,9 +135,23 @@ class UsersExtract extends Command
 //                throw new Exception(
 //                    'Unable to send CSV data to Power BI. Response code : ' . $response->getStatusCode()
 //                );
+            $job->update([
+                'running' => 0,
+                'status' => 'OK',
+                'message' => '',
+                'finished_at' => Carbon::now()
+            ]);
 
             return 0;
         } catch (Exception $e) {
+            if (isset($job)) {
+                $job->update([
+                    'running' => 0,
+                    'status' => 'ERROR',
+                    'message' => $e->getMessage(),
+                    'finished_at' => Carbon::now()
+                ]);
+            }
             $this->log($e->getMessage(), 'error');
         } finally {
             $this->log('--- End');
