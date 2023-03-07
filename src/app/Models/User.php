@@ -15,7 +15,10 @@ use Laravel\Sanctum\NewAccessToken;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, Uuid;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use Uuid;
 
     protected $keyType = 'string';
     public $incrementing = false;
