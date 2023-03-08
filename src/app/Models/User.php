@@ -28,12 +28,17 @@ class User extends Authenticatable
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'is_admin'
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function socials(): HasMany
+    {
+        return $this->hasMany(Social::class, 'user_id');
+    }
 
     public function profiles(): HasMany
     {
