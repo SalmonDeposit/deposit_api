@@ -16,7 +16,10 @@ use Laravel\Sanctum\NewAccessToken;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, Uuid;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use Uuid;
 
     protected $keyType = 'string';
     public $incrementing = false;
@@ -26,12 +29,17 @@ class User extends Authenticatable
     ];
 
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'is_admin'
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function socials(): HasMany
+    {
+        return $this->hasMany(Social::class, 'user_id');
+    }
 
     public function profiles(): HasMany
     {

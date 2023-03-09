@@ -10,7 +10,8 @@ class CreateProfilesTable extends Migration
 {
     public function up()
     {
-        Schema::create('profiles', function (Blueprint $table) {            $table->charset = 'utf8';
+        Schema::create('profiles', function (Blueprint $table) {
+            $table->charset = 'utf8';
             $table->uuid('id')->primary();
             $table->string('firstname', 70);
             $table->string('lastname', 70);
