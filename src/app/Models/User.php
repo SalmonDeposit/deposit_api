@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Laravel\Sanctum\NewAccessToken;
@@ -60,5 +61,16 @@ class User extends Authenticatable
         ]);
 
         return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
+    }
+
+    /**
+     * Returns MySQL 'users' tables columns name
+     * Used to simplify the writing of headers in CSV files
+     *
+     * @return array
+     */
+    public static function getTableColumns(): array
+    {
+        return Schema::getColumnListing('users');
     }
 }

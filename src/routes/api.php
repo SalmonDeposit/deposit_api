@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\GoogleAuthController;
 use App\Http\Controllers\Api\Auth\RegisteredUserController;
 use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\Services\JobController;
 use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,12 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::post('refresh', [AuthenticatedSessionController::class, 'refresh']);
 });
 
+// Foreign services endpoints
+Route::group(['prefix' => 'v1'], function() {
+    Route::get('jobs/{job?}/{token?}', [JobController::class, 'index']);
+});
+
+// General API endpoints
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
     Route::get('user', function() { return Auth::user(); });
     Route::apiResource('users', UserController::class)->except('store');
