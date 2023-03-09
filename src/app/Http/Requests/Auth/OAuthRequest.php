@@ -24,7 +24,7 @@ class OAuthRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => 'unique:users,email',
+            'email' => 'required:email',
             'token_id' => 'required'
         ];
     }
