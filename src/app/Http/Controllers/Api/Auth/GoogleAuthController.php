@@ -63,14 +63,19 @@ class GoogleAuthController extends Controller
             $password = random_bytes(24);
             $password_hash = Hash::make($password);
 
+            $existingUser = User::where(['email' => (string) $request->email])->first();
+
+            if ($existingUser !== null)
+                throw new Exception(__('Email already taken.'));
+            
             $user = User::create([
-                'email' => (string) $request->email,
+                'email' => $request->email,
                 'password' => $password_hash,
                 'simon_coin_stock' => 0
             ]);
 
             if ($user === null || !Auth::attempt([
-                'email' => (string) $request->email,
+                'email' => $request->email,
                 'password' => $password
             ])) {
                 throw new Exception(__('Oops, it looks like something went wrong. Please try again later.'));

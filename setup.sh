@@ -14,6 +14,10 @@ fi
   echo "APP_DEBUG=${APP_DEBUG:-false}";
   echo "APP_URL=${APP_URL:-http://localhost:5000}";
 
+  echo "FRONTEND_URL=${FRONTEND_URL:-'http://localhost:4200'}";
+  echo "SESSION_DOMAIN=${SESSION_DOMAIN:-'localhost'}";
+  echo "SANCTUM_STATEFUL_DOMAINS=${SANCTUM_STATEFUL_DOMAINS:-'localhost:4200,localhost:5000'}";
+
   echo "DB_CONNECTION=${DB_CONNECTION:-mysql}";
   echo "DB_HOST=${DB_HOST:-database}";
   echo "DB_PORT=${DB_PORT:-3306}";
