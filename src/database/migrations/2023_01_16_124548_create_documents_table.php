@@ -13,7 +13,7 @@ class CreateDocumentsTable extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->uuid('id')->primary();
             $table->string('name', 150);
-            $table->string('type', 50);
+            $table->string('type');
             $table->text('storage_link');
             $table->integer('size');
             $table->timestamps();

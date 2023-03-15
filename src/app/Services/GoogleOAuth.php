@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use App\Models\Social;
-use App\Models\User;
 use Carbon\Carbon;
 use Exception;
 use Google\Service\Drive;

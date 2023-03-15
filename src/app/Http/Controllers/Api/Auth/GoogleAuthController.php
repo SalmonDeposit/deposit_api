@@ -67,26 +67,22 @@ class GoogleAuthController extends Controller
 
             if ($existingUser !== null)
                 throw new Exception(__('Email already taken.'));
-            
+
             $user = User::create([
                 'email' => $request->email,
                 'password' => $password_hash,
                 'simon_coin_stock' => 0
             ]);
 
-            if ($user === null || !Auth::attempt([
-                'email' => $request->email,
-                'password' => $password
-            ])) {
+            if ($user === null)
                 throw new Exception(__('Oops, it looks like something went wrong. Please try again later.'));
-            }
 
             $user->socials()->save(GoogleOAuth::getSocial());
 
-            $authToken = Auth::user()->createToken('web-auth');
+            $authToken = $user->createToken('web-auth');
 
             return $this->successResponse(
-                new UserResource(Auth::user()),
+                new UserResource($user),
                 __('Successfully logged in.'),
                 [
                     'token' => $authToken->plainTextToken,

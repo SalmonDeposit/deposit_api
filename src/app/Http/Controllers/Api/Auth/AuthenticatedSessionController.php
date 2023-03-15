@@ -65,10 +65,9 @@ class AuthenticatedSessionController extends ApiController
      */
     public function destroy(Request $request): JsonResponse
     {
-        Auth::user()
-            ->tokens()
-            ->where('name', 'web-auth')
-            ->delete();
+        //$request->user()->currentAccessToken()->delete();
+
+        Auth::guard('web')->logout();
 
         return $this->successResponse(
             null,
