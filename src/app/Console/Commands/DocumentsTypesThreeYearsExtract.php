@@ -1,11 +1,8 @@
 <?php
 
-declare(strict_types=1);
-
 namespace App\Console\Commands;
 
 use App\Models\Job;
-use App\Models\User;
 use App\Services\AzureStorage;
 use Carbon\Carbon;
 use Exception;
@@ -13,21 +10,24 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use League\Csv\Writer;
 
-class UsersExtract extends Command
+class DocumentsTypesThreeYearsExtract extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'extract:users';
+    protected $signature = 'extract:documents-types-three-years';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Extract Users';
+    protected $description = 'Extract users documents stats';
+
+    /** @var Job */
+    private $job;
 
     /** @var string */
     private $outputPath;
@@ -44,9 +44,11 @@ class UsersExtract extends Command
      */
     public function __construct()
     {
-        $this->fileName = 'users_extract_' . time() . '.csv';
+        $this->fileName = 'documents_types_three_years_extract_' . time() . '.csv';
         $this->outputPath = storage_path() . '/extracts/';
         $this->outputFilePath = $this->outputPath . $this->fileName;
+
+        $this->job = Job::where('class', '=', self::class)->first();
 
         parent::__construct();
     }
@@ -59,26 +61,46 @@ class UsersExtract extends Command
     public function handle(): int
     {
         try {
-            $job = Job::where('class', '=', self::class)->first();
-
-            if ($job === null) {
+            if ($this->job === null) {
                 throw new Exception('Cannot find any job related to ' . self::class . ' class.');
             }
 
-            $job->update(['running' => 1, 'launched_at' => Carbon::now()]);
+            $this->job->update(['running' => 1, 'launched_at' => Carbon::now()]);
             $this->log('Start ---');
 
             $startTime = microtime(true);
 
-            $usersCount = User::count('id');
-            $pages = ceil($usersCount / self::BATCH_SIZE);
+            $data = \DB::select(
+                "SELECT
+                    u.id AS user_id,
+                    o.id AS offer_id,
+                    CASE
+                        WHEN d.type IN (
+                            'text/csv',
+                            'application/pdf',
+                            'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                        ) THEN 'Document'
+                        WHEN d.type IN ('video/mp4', 'video/mpeg') THEN 'Video'
+                        WHEN d.type IN ('image/jpeg', 'image/png') THEN 'Image'
+                        ELSE d.type
+                    END AS document_category,
+                    d.created_at AS document_created_at,
+                    d.size AS document_size
+                FROM documents d
+                INNER JOIN users u ON u.id = d.user_id
+                LEFT JOIN offers o ON o.id = u.offer_id
+                ORDER BY document_created_at;"
+            );
 
+            $pages = ceil(sizeof($data) / self::BATCH_SIZE);
             $this->log($pages . ' pages found.');
 
             if (!is_dir($this->outputPath))
                 mkdir($this->outputPath, 0775, true);
 
-            $headers = User::getTableColumns();
+            $headers = ['user_id', 'offer_id', 'document_category', 'document_created_at', 'document_size'];
 
             $csv = Writer::createFromPath($this->outputFilePath, 'a+');
             $csv->setDelimiter(';');
@@ -88,17 +110,24 @@ class UsersExtract extends Command
             for ($i = 1; $i <= $pages; $i++) {
                 $this->log('Extracting page : ' . $i);
 
-                $users = User::paginate(self::BATCH_SIZE, ['*'], 'page', $i);
+                if (sizeof($data) > self::BATCH_SIZE) {
+                    $rows = array_splice($data, $i * self::BATCH_SIZE);
+                } else {
+                    $rows = $data;
+                }
+
                 $batch_extract = [];
 
-                foreach ($users as $user) {
-                    $userRow = [];
+                foreach ($rows as $row) {
+                    $toWriteRow = [];
                     foreach ($headers as $field) {
-                        $userRow[] = $user->$field ?? null;
+                        if (isset($row->$field)) {
+                            $toWriteRow[] = $row->$field;
+                        }
                     }
 
-                    if (!empty($userRow))
-                        $batch_extract[] = $userRow;
+                    if (!empty($toWriteRow))
+                        $batch_extract[] = $toWriteRow;
                 }
 
                 if (!empty($batch_extract))
@@ -107,35 +136,14 @@ class UsersExtract extends Command
 
             $endTime = microtime(true);
 
-            $this->log('Successfully extracted ' . $usersCount . ' users in ' . number_format(($endTime - $startTime), 2) . ' seconds.', 'success');
+            $this->log('Successfully extracted documents types stats of 3 years old in ' . number_format(($endTime - $startTime), 2) . ' seconds.', 'success');
 
             // Send to Azure Storage
             AzureStorage::uploadExtract($this->outputFilePath, $this->fileName);
 
             $this->log('Exported ' . $this->fileName . ' to Azure Storage.', 'success');
 
-            // Send to Power BI
-//            $client = new Client([
-//                'base_uri' => 'https://api.powerbi.com/',
-//                'headers' => [
-//                    'Content-Type' => 'text/csv',
-//                    'Authorization' => 'Bearer <access_token>',
-//                ],
-//                'auth' => [
-//                    '<username>',
-//                    '<password>',
-//                ],
-//            ]);
-//
-//            $response = $client->post('/v1.0/myorg/datasets/<dataset_id>/tables/<table_name>/rows', [
-//                'body' => [],
-//            ]);
-//
-//            if ($response->getStatusCode() !== 200)
-//                throw new Exception(
-//                    'Unable to send CSV data to Power BI. Response code : ' . $response->getStatusCode()
-//                );
-            $job->update([
+            $this->job->update([
                 'running' => 0,
                 'status' => 'OK',
                 'message' => '',
@@ -144,8 +152,8 @@ class UsersExtract extends Command
 
             return 0;
         } catch (Exception $e) {
-            if (isset($job)) {
-                $job->update([
+            if ($this->job instanceof Job) {
+                $this->job->update([
                     'running' => 0,
                     'status' => 'ERROR',
                     'message' => $e->getMessage(),
@@ -172,11 +180,11 @@ class UsersExtract extends Command
                 case 'success':
                     Log::info('[' . self::class . '] ' . $message);
                     $this->output->info('[' . self::class . '] ' . $message);
-                break;
+                    break;
                 case 'error':
                     Log::error('[' . self::class . '] ' . $message);
                     $this->output->error('[' . self::class . '] ' . $message);
-                break;
+                    break;
                 default:
                     Log::info('[' . self::class . '] ' . $message);
                     $this->output->writeln('[' . self::class . '] ' . $message);

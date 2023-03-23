@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Schema;
@@ -25,7 +26,7 @@ class User extends Authenticatable
     public $incrementing = false;
 
     protected $fillable = [
-        'email', 'password', 'simon_coin_stock'
+        'email', 'password', 'simon_coin_stock', 'offer_id'
     ];
 
     protected $hidden = [
@@ -35,6 +36,11 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function offer(): HasOne
+    {
+        return $this->hasOne(Offer::class, 'id', 'offer_id');
+    }
 
     public function socials(): HasMany
     {

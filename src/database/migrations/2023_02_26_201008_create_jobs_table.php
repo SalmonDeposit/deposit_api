@@ -2,6 +2,9 @@
 
 declare(strict_types=1);
 
+use App\Console\Commands\DocumentsTypesThreeYearsExtract;
+use App\Console\Commands\OffersUsage;
+use App\Console\Commands\UsersDocumentsStatsExtract;
 use App\Console\Commands\UsersExtract;
 use App\Models\Job;
 use Illuminate\Database\Migrations\Migration;
@@ -25,6 +28,24 @@ class CreateJobsTable extends Migration
 
         Job::create([
             'class' => UsersExtract::class,
+            'running' => 0,
+            'status' => 'AVAILABLE'
+        ]);
+
+        Job::create([
+            'class' => UsersDocumentsStatsExtract::class,
+            'running' => 0,
+            'status' => 'AVAILABLE'
+        ]);
+
+        Job::create([
+            'class' => DocumentsTypesThreeYearsExtract::class,
+            'running' => 0,
+            'status' => 'AVAILABLE'
+        ]);
+
+        Job::create([
+            'class' => OffersUsage::class,
             'running' => 0,
             'status' => 'AVAILABLE'
         ]);

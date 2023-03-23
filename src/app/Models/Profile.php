@@ -7,12 +7,12 @@ namespace App\Models;
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Profile extends Model
 {
-    use HasFactory, Uuid;
+    use HasFactory;
+    use Uuid;
 
     protected $keyType = 'string';
     public $incrementing = false;
@@ -21,13 +21,13 @@ class Profile extends Model
         'user_id', 'address_id', 'firstname', 'lastname', 'email', 'phone_number',
     ];
 
-    public function user(): BelongsTo
+    public function user(): HasOne
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->hasOne(User::class);
     }
 
-    public function address(): BelongsTo
+    public function address(): HasOne
     {
-        return $this->belongsTo(Address::class, 'address_id');
+        return $this->hasOne(Address::class);
     }
 }
