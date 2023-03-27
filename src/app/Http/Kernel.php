@@ -3,6 +3,7 @@
 namespace App\Http;
 
 use App\Http\Middleware\ApiAuthenticate;
+use App\Http\Middleware\AuthorizeFileExtension;
 use App\Http\Middleware\AzureStorageMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
@@ -44,7 +45,8 @@ class Kernel extends HttpKernel
         ValidatePostSize::class,
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
-        RequestFieldHandle::class
+        RequestFieldHandle::class,
+        AuthorizeFileExtension::class
     ];
 
     /**
