@@ -48,7 +48,12 @@ class User extends Authenticatable
 
     public function documents(): HasMany
     {
-        return $this->hasMany(Document::class, 'user_id');
+        return $this->hasMany(Document::class, 'user_id')->orderBy('name');
+    }
+
+    public function folders(): HasMany
+    {
+        return $this->hasMany(Folder::class, 'user_id')->orderBy('name');
     }
 
     public function createToken(string $name, array $abilities = ['*']): NewAccessToken

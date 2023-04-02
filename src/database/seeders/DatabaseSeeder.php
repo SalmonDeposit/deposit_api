@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
                 }
             });
 
-            Document::factory(rand(5, 20))->create()->each(function($document) use ($user) {
+            Document::factory(rand(1, 5))->create()->each(function($document) use ($user) {
                 $user->documents()->save($document);
             });
         });
