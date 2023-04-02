@@ -39,23 +39,23 @@ class LoginRequest extends FormRequest
     /**
      * Attempt to authenticate the request's credentials.
      *
-     * @return void
-     *
      * @throws ValidationException
      */
     public function authenticate()
     {
         $this->ensureIsNotRateLimited();
 
-        $user = User::where('email', $this->request->email)->first();
+        $user = User::where('email', $this->request->get('email') ?? '')->first();
 
-        if (!$user || !Hash::check($this->request->password, $user->password)) {
+        if (!$user || !Hash::check($this->request->get('password'), $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],
             ]);
         }
 
         RateLimiter::clear($this->throttleKey());
+
+        return $user;
     }
 
     /**

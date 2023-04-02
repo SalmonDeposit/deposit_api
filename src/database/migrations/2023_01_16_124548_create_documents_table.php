@@ -12,13 +12,13 @@ class CreateDocumentsTable extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->uuid('id')->primary();
+            $table->foreignUuid('user_id')->nullable()->constrained();
+            $table->foreignUuid('folder_id')->nullable()->constrained();
             $table->string('name', 150);
             $table->string('type');
             $table->text('storage_link');
             $table->integer('size');
             $table->timestamps();
-
-            $table->foreignUuid('user_id')->nullable()->constrained();
         });
     }
 

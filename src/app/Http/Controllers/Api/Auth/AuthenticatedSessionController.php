@@ -21,12 +21,12 @@ class AuthenticatedSessionController extends ApiController
      */
     public function store(LoginRequest $request): JsonResponse
     {
-        $request->authenticate();
+        $user = $request->authenticate();
 
-        $authToken = Auth::user()->createToken('web-auth');
+        $authToken = $user->createToken('web-auth');
 
         return $this->successResponse(
-            new UserResource(Auth::user()),
+            new UserResource($user),
             __('Successfully logged in.'),
             [
                 'token' => $authToken->plainTextToken,
