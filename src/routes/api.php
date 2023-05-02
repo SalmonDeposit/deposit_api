@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 // Foreign services endpoints
 Route::group(['prefix' => 'v1'], function() {
     Route::get('jobs/{job?}/{token?}', [JobController::class, 'index']);
+    Route::get('ping', function() { return response()->json([], 200); });
 });
 
 // General API endpoints
