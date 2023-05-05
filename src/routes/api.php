@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\GoogleAuthController;
 use App\Http\Controllers\Api\Auth\RegisteredUserController;
+use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\FolderController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\Services\JobController;
@@ -31,8 +32,10 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 // Foreign services endpoints
 Route::group(['prefix' => 'v1'], function() {
     Route::get('jobs/{job?}/{token?}', [JobController::class, 'index']);
+    Route::post('contacts', [ContactController::class, 'store']);
     Route::get('ping', function() { return response()->json([], 200); });
 });
+
 
 // General API endpoints
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
