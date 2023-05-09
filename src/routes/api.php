@@ -41,7 +41,7 @@ Route::group(['prefix' => 'v1'], function() {
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
     Route::get('user', function() { return Auth::user(); });
     Route::apiResource('users', UserController::class)->except('store');
-    Route::apiResource('documents', DocumentController::class);
+    Route::apiResource('documents', DocumentController::class)->middleware('accept-files');
     Route::apiResource('folders', FolderController::class);
     Route::apiResource('profiles', ProfileController::class);
     Route::get('files', [FolderController::class, 'files']);
