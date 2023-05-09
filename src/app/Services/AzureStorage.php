@@ -22,7 +22,7 @@ class AzureStorage
     {
         $fileName  = (string) $request->$inputFileName->getClientOriginalName();
         $mimeType  = (string) $request->$inputFileName->getClientMimeType();
-        $fileSize  = (int) $request->$inputFileName->getSize();
+        $fileSize  = (int) $request->$inputFileName->getMaxFileSize();
 
         $targetPath = Auth::id() . '/' . $fileName;
 
