@@ -6,6 +6,7 @@ use App\Http\Controllers\ApiController;
 use App\Http\Resources\V1\DocumentCollection;
 use App\Http\Resources\V1\FolderCollection;
 use App\Http\Resources\V1\FolderResource;
+use App\Models\Document;
 use App\Models\Folder;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -26,18 +27,31 @@ class FolderController extends ApiController
         );
     }
 
-    public function files(): JsonResponse
+    public function files(Request $request): JsonResponse
     {
-        try {
-            $folders = Auth::user()->folders->whereNull('folder_id');
-            $documents = Auth::user()->documents->whereNull('folder_id');
+        $searchParams = htmlspecialchars($request->input('search'));
 
+        try {
+            if (!empty($searchParams)) {
+                $folders = Folder::where('name', 'LIKE', "%$searchParams%")
+                    ->where('user_id', Auth::id())
+                    ->get();
+                $documents = Document::where('name', 'LIKE', "%$searchParams%")
+                    ->where('user_id', Auth::id())
+                    ->get();
+            } else {
+                $folders = Auth::user()->folders->whereNull('folder_id');
+                $documents = Auth::user()->documents->whereNull('folder_id');
+            }
+            
             return $this->successResponse(
                 [],
                 '',
                 [
                     'documents' => new DocumentCollection($documents),
-                    'folders' => new FolderCollection($folders)]
+                    'folders' => new FolderCollection($folders)
+                ]
+
             );
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
