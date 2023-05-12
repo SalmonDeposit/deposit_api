@@ -4,7 +4,6 @@ set -xe
 ENV_FILE="/var/www/html/.env";
 
 if [ ! -f "$ENV_FILE" ]; then
-  rm "$ENV_FILE"
   touch "$ENV_FILE"
 fi
 
@@ -54,9 +53,10 @@ fi
 
 chown "${CODE_OWNER}":"${APP_GROUP}" "${ENV_FILE}"
 chmod 777 "${ENV_FILE}"
+composer update
 php artisan config:cache
 php artisan key:generate
-php artisan migrate:fresh
+php artisan migrate
 chmod 777 -R storage
 chmod 777 -R bootstrap
 
