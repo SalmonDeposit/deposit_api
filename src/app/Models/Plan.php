@@ -17,5 +17,7 @@ class Plan extends Model
     protected $keyType = 'string';
 
     /** @var array */
-    protected $fillable = [];
+    protected $fillable = [
+        'id', 'short_name', 'long_name'
+    ];
 }

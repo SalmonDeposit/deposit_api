@@ -6,11 +6,12 @@ use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\GoogleAuthController;
 use App\Http\Controllers\Api\Auth\RegisteredUserController;
 use App\Http\Controllers\Api\V1\ContactController;
+use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\FolderController;
+use App\Http\Controllers\Api\V1\PlanController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\Services\JobController;
 use App\Http\Controllers\Api\V1\UserController;
-use App\Http\Controllers\Api\V1\DocumentController;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'guest'], function() {
@@ -31,11 +32,11 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
 
 // Foreign services endpoints
 Route::group(['prefix' => 'v1'], function() {
+    Route::apiResource('plans', PlanController::class)->only('index');
     Route::get('jobs/{job?}/{token?}', [JobController::class, 'index']);
     Route::post('contacts', [ContactController::class, 'store']);
-    Route::get('ping', function() { return response()->json([], 200); });
+    Route::get('ping', function() { return response()->json(); });
 });
-
 
 // General API endpoints
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
