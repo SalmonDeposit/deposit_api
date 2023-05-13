@@ -21,9 +21,9 @@ fi
   echo "DB_CONNECTION=${DB_CONNECTION:-mysql}";
   echo "DB_HOST=${DB_HOST:-database}";
   echo "DB_PORT=${DB_PORT:-3306}";
-  echo "DB_DATABASE=${DB_NAME:-laravel}";
-  echo "DB_USERNAME=${DB_USERNAME:-laravel}";
-  echo "DB_PASSWORD=${DB_PASSWORD:-laravel}";
+  echo "DB_DATABASE=${DB_NAME:-deposit_db}";
+  echo "DB_USERNAME=${DB_USERNAME:-username}";
+  echo "DB_PASSWORD=${DB_PASSWORD:-password}";
 
   echo "AZURE_FUNCTION_ACCESS_TOKEN=${AZURE_FUNCTION_ACCESS_TOKEN:-''}";
   echo "AZURE_STORAGE_CONTAINER=${AZURE_STORAGE_CONTAINER:-''}";
@@ -54,6 +54,7 @@ fi
 chown "${CODE_OWNER}":"${APP_GROUP}" "${ENV_FILE}"
 chmod 777 "${ENV_FILE}"
 composer update
+php artisan config:cache
 php artisan key:generate
 php artisan migrate
 chmod 777 -R storage

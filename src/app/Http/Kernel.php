@@ -45,8 +45,7 @@ class Kernel extends HttpKernel
         ValidatePostSize::class,
         TrimStrings::class,
         ConvertEmptyStringsToNull::class,
-        RequestFieldHandle::class,
-        AuthorizeFileExtension::class
+        RequestFieldHandle::class
     ];
 
     /**
@@ -84,6 +83,7 @@ class Kernel extends HttpKernel
         // 'auth' => Authenticate::class,
         'auth' => ApiAuthenticate::class,
         'azure-storage-auth' => AzureStorageMiddleware::class,
+        'accept-files' => AuthorizeFileExtension::class,
         'auth.basic' => AuthenticateWithBasicAuth::class,
         'cache.headers' => SetCacheHeaders::class,
         'can' => Authorize::class,
