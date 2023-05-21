@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Traits\Uuid;
+use App\Scopes\DeletedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
@@ -37,6 +39,12 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected static function booted()
+    {
+        parent::boot();
+        static::addGlobalScope(new DeletedScope);
+    }
 
     public function socials(): HasMany
     {
@@ -79,5 +87,18 @@ class User extends Authenticatable
     public static function getTableColumns(): array
     {
         return Schema::getColumnListing('users');
+    }
+
+    public function anonymize(): void
+    {
+        $this->update([
+            'email' => 'DELETED@'.Hash::make(random_bytes(36)),
+            'remember_token' => null,
+            'is_admin' => 0,
+            'email_verified_at' => null,
+            'password' => 'DELETED',
+            'deleted' => true
+        ]);
+        $this->tokens()->delete();
     }
 }

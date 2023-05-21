@@ -9,10 +9,15 @@ use App\Http\Controllers\ApiController;
 use App\Http\Requests\V1\UpdateUserRequest;
 use App\Http\Resources\V1\UserCollection;
 use App\Http\Resources\V1\UserResource;
+use App\Models\Document;
+use App\Models\Folder;
+use App\Models\Profile;
+use App\Models\Social;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends ApiController
 {
@@ -92,10 +97,58 @@ class UserController extends ApiController
 
     /**
      * @param User $user
+     * @return JsonResponse
      */
-    public function delete(User $user)
+    public function destroy(User $user): JsonResponse
     {
-        // @TODO Do not destroy. Anonymize !
-        // return User::destroy($user);
+        if ($user->id !== Auth::id()) {
+            return $this->errorResponse('', 403);
+        }
+
+        // @TODO Make it asynchronous and put the logic within an artisan command
+
+        try {
+            $profiles = $user->profiles();
+            $documents = $user->documents();
+            $folders = $user->folders();
+            $socials = $user->socials();
+
+            if ($profiles->count() > 0) {
+                foreach ($profiles->getResults() as $profile) {
+                    /** @var Profile $profile */
+                    $profile->anonymize();
+                }
+            }
+
+            if ($documents->count() > 0) {
+                foreach($documents->getResults() as $document) {
+                    /** @var Document $document */
+                    $document->anonymize();
+                }
+            }
+
+            if ($folders->count() > 0) {
+                foreach ($folders->getResults() as $folder) {
+                    /** @var Folder $folder */
+                    $folder->anonymize();
+                }
+            }
+
+            if ($socials->count() > 0) {
+                foreach ($socials->getResults() as $social) {
+                    /** @var Social $social */
+                    $social->delete();
+                }
+            }
+
+            $user->anonymize();
+
+            return $this->successResponse(
+                [],
+                __('Your request has been taken into account. You will be redirected shortly.')
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse(__('An error occurred when trying to delete your account.'));
+        }
     }
 }

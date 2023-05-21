@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
+use App\Scopes\DeletedScope;
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Folder extends Model
 {
@@ -20,6 +20,12 @@ class Folder extends Model
     protected $fillable = [
         'user_id', 'folder_id', 'name'
     ];
+
+    protected static function booted()
+    {
+        parent::boot();
+        static::addGlobalScope(new DeletedScope);
+    }
 
     public function user(): BelongsTo
     {
@@ -39,5 +45,13 @@ class Folder extends Model
     public function documents(): HasMany
     {
         return $this->hasMany(Document::class)->orderBy('name');
+    }
+
+    public function anonymize(): void
+    {
+        $this->update([
+            'name' => 'DELETED',
+            'deleted' => true
+        ]);
     }
 }
