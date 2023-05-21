@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Scopes\DeletedScope;
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Document extends Model
 {
@@ -22,6 +22,12 @@ class Document extends Model
         'user_id', 'folder_id', 'name', 'type', 'storage_link', 'size'
     ];
 
+    protected static function booted()
+    {
+        parent::boot();
+        static::addGlobalScope(new DeletedScope);
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -30,5 +36,16 @@ class Document extends Model
     public function folder(): BelongsTo
     {
         return $this->belongsTo(Folder::class);
+    }
+
+    public function anonymize(): void
+    {
+        $this->update([
+            'name' => 'DELETED',
+            'type' => 'DELETED',
+            'storage_link' => 'DELETED',
+            'size' => '0',
+            'deleted' => true
+        ]);
     }
 }
