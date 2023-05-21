@@ -7,6 +7,7 @@ pool:
 
 variables:
   ImageName: 'deposit-api'
+  phpVersion: 7.2
   ${{ if eq( variables['Build.SourceBranchName'], 'main' ) }}:
     buildVersion: 'latest'
   ${{ if eq( variables['Build.SourceBranchName'], 'develop' ) }}:
@@ -14,12 +15,18 @@ variables:
 
 stages:
   - stage: Test
-    displayName: Run Laravel Tests
+    displayName: Run Laravel Tests'
     jobs:
       - job: Test
         displayName: Run Laravel Tests
         steps:
           - script: |
+              sudo update-alternatives --set php /usr/bin/php$(phpVersion)
+              sudo update-alternatives --set phar /usr/bin/phar$(phpVersion)
+              sudo update-alternatives --set phpdbg /usr/bin/phpdbg$(phpVersion)
+              sudo update-alternatives --set php-cgi /usr/bin/php-cgi$(phpVersion)
+              sudo update-alternatives --set phar.phar /usr/bin/phar.phar$(phpVersion)
+              php -version
               cd src
               composer install --no-interaction
               touch .env
