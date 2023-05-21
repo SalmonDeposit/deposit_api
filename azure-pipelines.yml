@@ -13,6 +13,21 @@ variables:
     buildVersion: 'test'
 
 stages:
+  - stage: Test
+    displayName: Run Laravel Tests
+    jobs:
+      - job: Test
+        displayName: Run Laravel Tests
+        steps:
+          - script: |
+              cd src
+              composer install --no-interaction
+              touch .env
+              php artisan key:generate
+              php artisan migrate --seed
+              php artisan test
+            displayName: 'Run Laravel Tests'
+            workingDirectory: $(Build.SourcesDirectory)
   - stage: Build
     displayName: Build image
     jobs:
