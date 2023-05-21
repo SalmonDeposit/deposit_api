@@ -14,6 +14,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use MicrosoftAzure\Storage\Blob\BlobRestProxy;
 use MicrosoftAzure\Storage\Blob\Models\CreateBlockBlobOptions;
 
@@ -126,8 +127,8 @@ class DocumentController extends ApiController
     public function destroy(Document $document): JsonResponse
     {
         try {
-            if (!$document->belongsTo(Auth::user()))
-                throw new Exception(__('Resource not found.'));
+            if ($document->user_id !== Auth::id())
+                return $this->successResponse(null, '', [], 404);
 
             Document::destroy($document->id);
 
