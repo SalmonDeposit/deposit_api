@@ -63,7 +63,7 @@ class User extends Authenticatable
 
     public function folders(): HasMany
     {
-        return $this->hasMany(Folder::class, 'user_id')->orderBy('name');
+        return $this->hasMany(Folder::class)->orderBy('name');
     }
 
     public function createToken(string $name, array $abilities = ['*']): NewAccessToken
