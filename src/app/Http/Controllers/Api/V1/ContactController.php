@@ -17,14 +17,10 @@ class ContactController extends ApiController
     public function index(Request $request): JsonResponse
     {
         try {
-            $isAdmin = Auth::user()->is_admin;
-            if(!$isAdmin) {
-                return $this->errorResponse("You're not admin", 401);
-            }
             return $this->successResponse(new ContactCollection(Contact::all()), '');
 
         } catch (Exception $e) {
-                return $this->errorResponse($e->getMessage());
+            return $this->errorResponse($e->getMessage());
         }
     }
 

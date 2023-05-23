@@ -4,6 +4,7 @@ namespace App\Http;
 
 use App\Http\Middleware\ApiAuthenticate;
 use App\Http\Middleware\AuthorizeFileExtension;
+use App\Http\Middleware\EnsureUserIsAdmin;
 use App\Http\Middleware\AzureStorageMiddleware;
 use App\Http\Middleware\EncryptCookies;
 use App\Http\Middleware\PreventRequestsDuringMaintenance;
@@ -91,5 +92,7 @@ class Kernel extends HttpKernel
         'password.confirm' => RequirePassword::class,
         'signed' => ValidateSignature::class,
         'throttle' => ThrottleRequests::class,
+        'ensure.isAdmin' => EnsureUserIsAdmin::class,
+
     ];
 }
