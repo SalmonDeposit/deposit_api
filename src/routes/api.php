@@ -47,3 +47,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
     Route::apiResource('profiles', ProfileController::class);
     Route::get('files', [FolderController::class, 'files']);
 });
+
+// General Admin API
+Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum','ensure.isAdmin']], function () {
+    Route::get('contacts', [ContactController::class, 'index']);
+    Route::delete('contacts/{contact}', [ContactController::class, 'destroy']);
+});
