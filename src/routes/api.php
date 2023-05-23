@@ -46,4 +46,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
     Route::apiResource('folders', FolderController::class);
     Route::apiResource('profiles', ProfileController::class);
     Route::get('files', [FolderController::class, 'files']);
+    Route::get('contacts', [ContactController::class, 'index']);
+    Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
 });

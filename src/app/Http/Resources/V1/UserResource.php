@@ -25,7 +25,8 @@ class UserResource extends JsonResource
             'profiles' => ProfileResource::collection($this->whenLoaded('profiles')),
             'simonCoinStock' => $this->simon_coin_stock,
             'createdAt' => (new Carbon($this->created_at))->format('Y-m-d H:i:s'),
-            'updatedAt' => (new Carbon($this->updated_at))->format('Y-m-d H:i:s')
+            'updatedAt' => (new Carbon($this->updated_at))->format('Y-m-d H:i:s'),
+            'isAdmin' => $this->is_admin
         ];
     }
 }

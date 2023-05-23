@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\ApiController;
+use App\Http\Resources\V1\ContactCollection;
 use App\Http\Resources\V1\ProfileResource;
 use App\Models\Contact;
 use Exception;
@@ -13,6 +14,20 @@ use Illuminate\Support\Facades\Auth;
 
 class ContactController extends ApiController
 {
+    public function index(Request $request): JsonResponse
+    {
+        try {
+            $isAdmin = Auth::user()->is_admin;
+            if(!$isAdmin) {
+                return $this->errorResponse("You're not admin", 401);
+            }
+            return $this->successResponse(new ContactCollection(Contact::all()), '');
+
+        } catch (Exception $e) {
+                return $this->errorResponse($e->getMessage());
+        }
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -29,6 +44,27 @@ class ContactController extends ApiController
                 __('Contact successfully created.'),
                 [],
                 201
+            );
+        } catch (Exception $e) {
+            return $this->errorResponse($e->getMessage());
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param string $id
+     * @return JsonResponse
+     */
+    public function destroy(string $id): JsonResponse
+    {
+        try {
+
+            Contact::destroy($id);
+
+            return $this->successResponse(
+                null,
+                __('Message deleted.')
             );
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
