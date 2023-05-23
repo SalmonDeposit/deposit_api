@@ -93,6 +93,5 @@ class Kernel extends HttpKernel
         'signed' => ValidateSignature::class,
         'throttle' => ThrottleRequests::class,
         'ensure.isAdmin' => EnsureUserIsAdmin::class,
-
     ];
 }

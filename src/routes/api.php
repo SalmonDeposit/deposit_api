@@ -49,7 +49,7 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
 });
 
 // General Admin API
-Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum','ensure.isAdmin']], function (){
+Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum','ensure.isAdmin']], function () {
     Route::get('contacts', [ContactController::class, 'index']);
-    Route::delete('contacts/{id}', [ContactController::class, 'destroy']);
+    Route::delete('contacts/{contact}', [ContactController::class, 'destroy']);
 });

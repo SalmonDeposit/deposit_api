@@ -9,16 +9,14 @@ use App\Models\Contact;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
-use Illuminate\Support\Facades\Auth;
 
 class ContactController extends ApiController
 {
-    public function index(Request $request): JsonResponse
+    public function index(): JsonResponse
     {
         try {
-            return $this->successResponse(new ContactCollection(Contact::all()), '');
-
+            $contacts = Contact::all();
+            return $this->successResponse(new ContactCollection($contacts));
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
         }
@@ -49,14 +47,13 @@ class ContactController extends ApiController
     /**
      * Remove the specified resource from storage.
      *
-     * @param string $id
+     * @param Contact $contact
      * @return JsonResponse
      */
-    public function destroy(string $id): JsonResponse
+    public function destroy(Contact $contact): JsonResponse
     {
         try {
-
-            Contact::destroy($id);
+            Contact::destroy($contact->id);
 
             return $this->successResponse(
                 null,
