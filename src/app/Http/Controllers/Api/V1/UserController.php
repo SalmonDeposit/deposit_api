@@ -7,6 +7,10 @@ namespace App\Http\Controllers\Api\V1;
 use App\Filters\V1\UserQueryFilter;
 use App\Http\Controllers\ApiController;
 use App\Http\Requests\V1\UpdateUserRequest;
+use App\Http\Resources\V1\DocumentCollection;
+use App\Http\Resources\V1\FolderCollection;
+use App\Http\Resources\V1\ProfileCollection;
+use App\Http\Resources\V1\SocialCollection;
 use App\Http\Resources\V1\UserCollection;
 use App\Http\Resources\V1\UserResource;
 use App\Models\Document;
@@ -149,6 +153,33 @@ class UserController extends ApiController
             );
         } catch (Exception $e) {
             return $this->errorResponse(__('An error occurred when trying to delete your account.'));
+        }
+    }
+
+    /**
+     * RGPD Purpose
+     *
+     * @return JsonResponse
+     */
+    public function data(): JsonResponse
+    {
+        try {
+            $profiles = Auth::user()->profiles();
+            $documents = Auth::user()->documents();
+            $folders = Auth::user()->folders();
+            $socials = Auth::user()->socials();
+
+            $data = [
+                'user' => new UserResource(Auth::user()),
+                'documents' => new DocumentCollection($documents->getResults()),
+                'folders' => new FolderCollection($folders->getResults()),
+                'profiles' => new ProfileCollection($profiles->getResults()),
+                'socials' => new SocialCollection($socials->getResults())
+            ];
+
+            return response()->json($data);
+        } catch (Exception $e) {
+            return $this->errorResponse('An error occurred when fetching your data. Please try again later.');
         }
     }
 }
