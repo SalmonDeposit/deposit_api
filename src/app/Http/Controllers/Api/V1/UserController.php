@@ -137,7 +137,7 @@ class UserController extends ApiController
             if ($socials->count() > 0) {
                 foreach ($socials->getResults() as $social) {
                     /** @var Social $social */
-                    $social->delete();
+                    Social::destroy($social->id);
                 }
             }
 
