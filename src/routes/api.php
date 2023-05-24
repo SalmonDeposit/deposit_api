@@ -41,6 +41,7 @@ Route::group(['prefix' => 'v1'], function() {
 // General API endpoints
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
     Route::get('user', function() { return Auth::user(); });
+    Route::get('user/data', [UserController::class, 'data']);
     Route::apiResource('users', UserController::class)->except('store');
     Route::apiResource('documents', DocumentController::class)->middleware('accept-files');
     Route::apiResource('folders', FolderController::class);
