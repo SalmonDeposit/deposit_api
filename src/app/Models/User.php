@@ -28,7 +28,7 @@ class User extends Authenticatable
     public $incrementing = false;
 
     protected $fillable = [
-        'email', 'password', 'simon_coin_stock'
+        'email', 'password', 'simon_coin_stock', 'deleted'
     ];
 
     protected $hidden = [
@@ -93,10 +93,9 @@ class User extends Authenticatable
         $this->update([
             'email' => 'DELETED@'.Hash::make(random_bytes(36)),
             'remember_token' => null,
-            'is_admin' => 0,
             'email_verified_at' => null,
             'password' => 'DELETED',
-            'deleted' => true
+            'deleted' => 1
         ]);
         $this->tokens()->delete();
     }

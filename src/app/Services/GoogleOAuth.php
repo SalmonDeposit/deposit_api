@@ -19,8 +19,8 @@ class GoogleOAuth
     /** @var \Google_Client */
     private static $client;
 
-    /** @var Social */
-    private static $social;
+    /** @var ?Social */
+    private static $social = null;
 
     /** @throws Exception */
     public function init(): void
@@ -33,42 +33,33 @@ class GoogleOAuth
 
     /**
      * @param string $token
-     * @param string $email
      * @return bool
      * @throws Exception
      */
-    public function verifyUserByToken(string $token, string $email): bool
+    public function verifyUserByToken(string $token): bool
     {
         $payload = self::$client->verifyIdToken($token);
 
         if ($payload === false)
             return false;
 
-        self::extract($payload, $email);
+        self::extract($payload);
 
         return true;
     }
 
-    public function getSocial(): Social
+    public function getSocial(): ?Social
     {
         return self::$social;
     }
 
     /** @throws Exception */
-    private function extract(array $payload, string $email): void
+    private function extract(array $payload): void
     {
         $social = Social::where(['subscriber_id' => $payload['sub']])->first();
 
-        if ($social !== null) {
-            if (null === $social->user()->where(['email' => $email])->first()) {
-                throw new Exception(__('An user already exists for this Google Account'));
-            } else {
-                self::$social = $social;
-                return;
-            }
-        }
-
-        self::$social = Social::create([
+        // We verify that the corresponding Google Account has a Social model
+        self::$social = $social ?? Social::create([
             'subscriber_id' => $payload['sub'],
             'firstname' => $payload['given_name'] ?? '',
             'lastname' => $payload['family_name'] ?? '',

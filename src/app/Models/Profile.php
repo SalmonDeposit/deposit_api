@@ -18,7 +18,7 @@ class Profile extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'user_id', 'address_id', 'firstname', 'lastname', 'email', 'phone_number',
+        'user_id', 'address_id', 'firstname', 'lastname', 'email', 'phone_number', 'deleted'
     ];
 
     protected static function booted()
@@ -44,7 +44,7 @@ class Profile extends Model
             'lastname' => 'DELETED',
             'email' => 'DELETED',
             'phone_number' => 'DELETED',
-            'deleted' => true
+            'deleted' => 1
         ]);
     }
 }

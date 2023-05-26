@@ -19,7 +19,7 @@ class Document extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'user_id', 'folder_id', 'name', 'type', 'storage_link', 'size'
+        'user_id', 'folder_id', 'name', 'type', 'storage_link', 'size', 'deleted'
     ];
 
     protected static function booted()
@@ -45,7 +45,7 @@ class Document extends Model
             'type' => 'DELETED',
             'storage_link' => 'DELETED',
             'size' => '0',
-            'deleted' => true
+            'deleted' => 1
         ]);
     }
 }

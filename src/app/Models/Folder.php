@@ -18,7 +18,7 @@ class Folder extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'user_id', 'folder_id', 'name'
+        'user_id', 'folder_id', 'name', 'deleted'
     ];
 
     protected static function booted()
@@ -51,7 +51,7 @@ class Folder extends Model
     {
         $this->update([
             'name' => 'DELETED',
-            'deleted' => true
+            'deleted' => 1
         ]);
     }
 }
