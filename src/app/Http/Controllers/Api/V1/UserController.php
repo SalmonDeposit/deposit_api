@@ -22,6 +22,7 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends ApiController
 {
@@ -78,22 +79,6 @@ class UserController extends ApiController
             }
 
             return $this->successResponse(new UserResource($user));
-        } catch (Exception $e) {
-            return $this->errorResponse($e->getMessage());
-        }
-    }
-
-    /**
-     * @param UpdateUserRequest $request
-     * @param User $user
-     * @return JsonResponse
-     */
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
-    {
-        try {
-            $user->update($request->all());
-
-            return $this->successResponse(new UserResource($user->refresh()));
         } catch (Exception $e) {
             return $this->errorResponse($e->getMessage());
         }

@@ -25,13 +25,20 @@ Route::group(['middleware' => 'guest'], function() {
         Route::post('/google', [GoogleAuthController::class, 'login']);
     });
     Route::group(['prefix' => 'account'], function() {
-        Route::post('password/reset', [AccountController::class, 'passwordReset']);
+        Route::group(['prefix' => 'password'], function() {
+            Route::post('reset', [AccountController::class, 'passwordReset']);
+        });
     });
 });
 
 Route::group(['middleware' => 'auth:sanctum'], function() {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
     Route::post('refresh', [AuthenticatedSessionController::class, 'refresh']);
+    Route::group(['prefix' => 'account'], function() {
+        Route::group(['prefix' => 'password'], function() {
+            Route::post('change', [AccountController::class, 'passwordChange']);
+        });
+    });
 });
 
 // Foreign services endpoints
@@ -46,7 +53,7 @@ Route::group(['prefix' => 'v1'], function() {
 Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
     Route::get('user', function() { return Auth::user(); });
     Route::get('user/data', [UserController::class, 'data']);
-    Route::apiResource('users', UserController::class)->except('store');
+    Route::apiResource('users', UserController::class)->except(['store', 'update']);
     Route::apiResource('documents', DocumentController::class)->middleware('accept-files');
     Route::apiResource('folders', FolderController::class);
     Route::apiResource('profiles', ProfileController::class);
