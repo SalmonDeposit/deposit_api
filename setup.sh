@@ -34,12 +34,15 @@ fi
   echo "GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-''}";
   echo "GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-''}"
 
+  echo "MAIL_MAILER=${MAIL_MAILER:-smtp}";
   echo "MAIL_DRIVER=${MAIL_DRIVER:-smtp}";
   echo "MAIL_HOST=${MAIL_HOST:-mailtrap.io}";
   echo "MAIL_PORT=${MAIL_PORT:-2525}";
   echo "MAIL_USERNAME=${MAIL_USERNAME:-null}";
   echo "MAIL_PASSWORD=${MAIL_PASSWORD:-null}";
   echo "MAIL_ENCRYPTION=${MAIL_ENCRYPTION:-null}";
+  echo "MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-null}";
+  echo "MAIL_FROM_NAME=${MAIL_FROM_NAME:-null}";
 
   echo "CACHE_DRIVER=${CACHE_DRIVER:-redis}";
   echo "SESSION_DRIVER=${SESSION_DRIVER:-redis}";
