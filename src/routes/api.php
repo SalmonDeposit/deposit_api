@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Api\Auth\GoogleAuthController;
 use App\Http\Controllers\Api\Auth\RegisteredUserController;
+use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\ContactController;
 use App\Http\Controllers\Api\V1\DocumentController;
 use App\Http\Controllers\Api\V1\FolderController;
@@ -22,6 +23,9 @@ Route::group(['middleware' => 'guest'], function() {
     Route::group(['prefix' => 'login'], function() {
         Route::post('/', [AuthenticatedSessionController::class, 'store']);
         Route::post('/google', [GoogleAuthController::class, 'login']);
+    });
+    Route::group(['prefix' => 'account'], function() {
+        Route::post('password/reset', [AccountController::class, 'passwordReset']);
     });
 });
 
