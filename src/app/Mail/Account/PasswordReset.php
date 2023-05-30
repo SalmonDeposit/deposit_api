@@ -34,7 +34,7 @@ class PasswordReset extends Mailable
      *
      * @return $this
      */
-    public function build(): ResetPasswordMail
+    public function build(): PasswordReset
     {
         return $this
             ->markdown('emails.account.password-reset', [
