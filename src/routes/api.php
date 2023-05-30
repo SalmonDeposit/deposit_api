@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['middleware' => 'guest'], function() {
     Route::group(['prefix' => 'register'], function() {
         Route::post('/', [RegisteredUserController::class, 'store']);
-        Route::post('/google', [GoogleAuthController::class, 'store']);
+        Route::post('/google', [GoogleAuthController::class, 'login']);
     });
     Route::group(['prefix' => 'login'], function() {
         Route::post('/', [AuthenticatedSessionController::class, 'store']);
