@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\ApiController;
+use App\Http\Requests\V1\FolderStoreRequest;
 use App\Http\Resources\V1\DocumentCollection;
 use App\Http\Resources\V1\FolderCollection;
 use App\Http\Resources\V1\FolderResource;
@@ -43,7 +44,7 @@ class FolderController extends ApiController
                 $folders = Auth::user()->folders->whereNull('folder_id');
                 $documents = Auth::user()->documents->whereNull('folder_id');
             }
-            
+
             return $this->successResponse(
                 [],
                 '',
@@ -64,10 +65,10 @@ class FolderController extends ApiController
      * @param Request $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(FolderStoreRequest $request): JsonResponse
     {
         try {
-            $folder = Folder::create($request->all());
+            $folder = Folder::create($request->validated());
 
             return $this->successResponse(
                 new FolderResource($folder),
