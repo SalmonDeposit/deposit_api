@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\ApiController;
+use App\Http\Requests\V1\ProfileStoreRequest;
 use App\Http\Resources\V1\ProfileCollection;
 use App\Http\Resources\V1\ProfileResource;
 use App\Models\Profile;
@@ -40,10 +41,10 @@ class ProfileController extends ApiController
      * @param Request $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(ProfileStoreRequest $request): JsonResponse
     {
         try {
-            $profile = Profile::create($request->all());
+            $profile = Profile::create($request->validated());
 
             return $this->successResponse(
                 new ProfileResource($profile),
