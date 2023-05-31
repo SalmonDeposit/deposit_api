@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\ApiController;
+use App\Http\Requests\V1\ContactStoreRequest;
 use App\Http\Resources\V1\ContactCollection;
-use App\Http\Resources\V1\ProfileResource;
+use App\Http\Resources\V1\ContactResource;
 use App\Models\Contact;
 use Exception;
 use Illuminate\Http\JsonResponse;
@@ -28,13 +29,13 @@ class ContactController extends ApiController
      * @param Request $request
      * @return JsonResponse
      */
-    public function store(Request $request): JsonResponse
+    public function store(ContactStoreRequest $request): JsonResponse
     {
         try {
-            $contact = Contact::create($request->all());
+            $contact = Contact::create($request->validated());
 
             return $this->successResponse(
-                new ProfileResource($contact),
+                new ContactResource($contact),
                 __('Contact successfully created.'),
                 [],
                 201
