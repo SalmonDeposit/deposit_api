@@ -54,6 +54,10 @@ return [
 
     'url' => env('APP_URL', 'http://localhost'),
 
+    'front-url' => env('FRONTEND_URL', 'http://localhost:4200'),
+
+    'frontend_url' => env('FRONTEND_URL', 'http://localhost:4200'),
+
     'asset_url' => env('ASSET_URL', null),
 
     /*
@@ -106,7 +110,7 @@ return [
     |
     */
 
-    'faker_locale' => 'en_US',
+    'faker_locale' => 'fr_FR',
 
     /*
     |--------------------------------------------------------------------------

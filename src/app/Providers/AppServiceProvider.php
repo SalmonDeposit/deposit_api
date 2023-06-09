@@ -2,6 +2,9 @@
 
 namespace App\Providers;
 
+use App\Services\AzureStorage;
+use App\Services\GoogleOAuth;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +16,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->singleton('azure-storage', function($app) {
+            return new AzureStorage();
+        });
+
+        $this->app->singleton('google-oauth', function($app) {
+            return new GoogleOAuth();
+        });
     }
 
     /**
@@ -23,6 +32,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        JsonResource::withoutWrapping();
     }
 }

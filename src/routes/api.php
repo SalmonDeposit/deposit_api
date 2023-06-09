@@ -1,19 +1,67 @@
 <?php
 
-use Illuminate\Http\Request;
+declare(strict_types=1);
+
+use App\Http\Controllers\Api\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\Api\Auth\GoogleAuthController;
+use App\Http\Controllers\Api\Auth\RegisteredUserController;
+use App\Http\Controllers\Api\V1\AccountController;
+use App\Http\Controllers\Api\V1\ContactController;
+use App\Http\Controllers\Api\V1\DocumentController;
+use App\Http\Controllers\Api\V1\FolderController;
+use App\Http\Controllers\Api\V1\PlanController;
+use App\Http\Controllers\Api\V1\ProfileController;
+use App\Http\Controllers\Api\V1\Services\JobController;
+use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+Route::group(['middleware' => 'guest'], function() {
+    Route::group(['prefix' => 'register'], function() {
+        Route::post('/', [RegisteredUserController::class, 'store']);
+        Route::post('/google', [GoogleAuthController::class, 'login']);
+    });
+    Route::group(['prefix' => 'login'], function() {
+        Route::post('/', [AuthenticatedSessionController::class, 'store']);
+        Route::post('/google', [GoogleAuthController::class, 'login']);
+    });
+    Route::group(['prefix' => 'account'], function() {
+        Route::group(['prefix' => 'password'], function() {
+            Route::post('reset', [AccountController::class, 'passwordReset']);
+        });
+    });
+});
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middleware' => 'auth:sanctum'], function() {
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy']);
+    Route::post('refresh', [AuthenticatedSessionController::class, 'refresh']);
+    Route::group(['prefix' => 'account'], function() {
+        Route::group(['prefix' => 'password'], function() {
+            Route::post('change', [AccountController::class, 'passwordChange']);
+        });
+    });
+});
+
+// Foreign services endpoints
+Route::group(['prefix' => 'v1'], function() {
+    Route::apiResource('plans', PlanController::class)->only('index');
+    Route::get('jobs/{job?}/{token?}', [JobController::class, 'index']);
+    Route::post('contacts', [ContactController::class, 'store']);
+    Route::get('ping', function() { return response()->json(); });
+});
+
+// General API endpoints
+Route::group(['prefix' => 'v1', 'middleware' => 'auth:sanctum'], function() {
+    Route::get('user', function() { return Auth::user(); });
+    Route::get('user/data', [UserController::class, 'data']);
+    Route::apiResource('users', UserController::class)->except(['store', 'update']);
+    Route::apiResource('documents', DocumentController::class)->middleware('accept-files');
+    Route::apiResource('folders', FolderController::class);
+    Route::apiResource('profiles', ProfileController::class);
+    Route::get('files', [FolderController::class, 'files']);
+});
+
+// General Admin API
+Route::group(['prefix' => 'v1', 'middleware' => ['auth:sanctum','ensure.isAdmin']], function () {
+    Route::get('contacts', [ContactController::class, 'index']);
+    Route::delete('contacts/{contact}', [ContactController::class, 'destroy']);
 });

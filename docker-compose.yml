@@ -14,6 +14,7 @@ services:
             - ./src:/var/www/html
             - /var/www/html/vendor
             - ./setup.sh:/var/www/setup.sh
+            # - ./xdebug:/var/logs/xdebug
         entrypoint: /var/www/setup.sh
         links:
             - mysql
@@ -25,7 +26,7 @@ services:
             DB_PORT: 3306
             DB_USERNAME: 'username'
             DB_PASSWORD: 'password'
-            APP_DEBUG: true
+            APP_DEBUG: 1
             APP_KEY: 'base64:Q0gqyvX+LwEFWOW3QYqHrMT3s6CbbDka6plbeK8o1KU='
             APP_ENV: 'local'
 
@@ -39,3 +40,14 @@ services:
             MYSQL_ALLOW_EMPTY_PASSWORD: 0
             MYSQL_USER: 'username'
             MYSQL_PASSWORD: 'password'
+        volumes:
+        - db-persistance:/var/lib/mysql
+
+    db_admin:
+        image: adminer:latest
+        ports:
+            - "8080:8080"
+        depends_on:
+            - mysql
+volumes:
+    db-persistance:

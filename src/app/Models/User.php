@@ -1,40 +1,102 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Uuid;
+use App\Scopes\DeletedScope;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use Laravel\Sanctum\HasApiTokens;
+use Laravel\Sanctum\NewAccessToken;
+use Laravel\Cashier\Billable;
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use Uuid;
+    use Billable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     protected $fillable = [
-        'name', 'email', 'password',
+        'email', 'password', 'simon_coin_stock', 'deleted'
     ];
 
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token'
     ];
 
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected static function booted()
+    {
+        parent::boot();
+        static::addGlobalScope(new DeletedScope);
+    }
+
+    public function socials(): HasMany
+    {
+        return $this->hasMany(Social::class, 'user_id');
+    }
+
+    public function profiles(): HasMany
+    {
+        return $this->hasMany(Profile::class, 'user_id');
+    }
+
+    public function documents(): HasMany
+    {
+        return $this->hasMany(Document::class, 'user_id')->orderBy('name');
+    }
+
+    public function folders(): HasMany
+    {
+        return $this->hasMany(Folder::class, 'user_id')->orderBy('name');
+    }
+
+    public function createToken(string $name, array $abilities = ['*']): NewAccessToken
+    {
+        $token = $this->tokens()->create([
+            'name' => $name,
+            'token' => hash('sha256', $plainTextToken = Str::random(40)),
+            'abilities' => $abilities,
+            'expired_at' => now()->addMinutes(config('sanctum.expiration'))
+        ]);
+
+        return new NewAccessToken($token, $token->getKey().'|'.$plainTextToken);
+    }
+
+    /**
+     * Returns MySQL 'users' tables columns name
+     * Used to simplify the writing of headers in CSV files
+     *
+     * @return array
+     */
+    public static function getTableColumns(): array
+    {
+        return Schema::getColumnListing('users');
+    }
+
+    public function anonymize(): void
+    {
+        $this->update([
+            'email' => 'DELETED@'.Hash::make(random_bytes(36)),
+            'remember_token' => null,
+            'email_verified_at' => null,
+            'password' => 'DELETED',
+            'deleted' => 1
+        ]);
+        $this->tokens()->delete();
+    }
 }
