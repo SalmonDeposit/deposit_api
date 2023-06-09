@@ -59,7 +59,7 @@ chmod 777 "${ENV_FILE}"
 composer update
 php artisan config:cache
 php artisan key:generate
-php artisan migrate
+yes | php artisan migrate
 chmod 777 -R storage
 chmod 777 -R bootstrap
 
